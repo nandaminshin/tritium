@@ -5,7 +5,7 @@ const { body } = require("express-validator");
 const HandleErrorMessage = require('../middlewares/HandleErrorMessage');
 const User = require('../models/User')
 
-router.get('/login', UserController.login);
+router.post('/login', UserController.login);
 router.post('/register', [
     body('name').notEmpty(),
     body('email').notEmpty(),

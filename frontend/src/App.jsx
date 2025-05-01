@@ -1,7 +1,7 @@
-import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
-import Nav from './components/Nav.jsx'
-import PageIllustration from './components/PageIllustration.jsx'
+import { useState } from 'react';
+import { Outlet } from 'react-router-dom';
+import Nav from './components/user/Nav.jsx';
+import PageIllustration from './components/user/PageIllustration.jsx';
 
 function App() {
 
