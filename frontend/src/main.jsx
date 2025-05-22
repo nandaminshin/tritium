@@ -14,6 +14,7 @@ import AdminLayout from './AdminLayout.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import CreateNewCourse from './pages/admin/CreateNewCourse.jsx';
 import UserManagement from './pages/admin/UserManagement.jsx';
+import { AuthContextProvider } from './contexts/AuthContext.jsx';
 
 const router = createBrowserRouter([
     {
@@ -73,6 +74,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
-        <RouterProvider router={router} />
+        <AuthContextProvider>
+            <RouterProvider router={router} />
+        </AuthContextProvider>
     </StrictMode>,
 )

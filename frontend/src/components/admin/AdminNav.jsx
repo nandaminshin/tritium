@@ -1,9 +1,22 @@
 import { Search, Bell } from 'lucide-react';
 import { Menu } from '@headlessui/react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { UserIcon, Cog6ToothIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { AuthContext } from '../../contexts/AuthContext';
+import { useContext } from 'react';
+import axios from '../../helpers/Axios';
 
 const AdminNav = () => {
+    let { user } = useContext(AuthContext);
+    let navigate = useNavigate();
+
+    const logout = async () => {
+        let response = await axios.post('/api/user/logout');
+        if (response.status == 200) {
+            navigate('/login');
+        }
+    }
+
     return (
         <div className="flex items-center justify-between bg-gray-900 px-6 py-3 shadow-md rounded-2xl">
             {/* Search Bar */}
@@ -15,6 +28,8 @@ const AdminNav = () => {
                     className="bg-gray-800 text-white pl-10 pr-4 py-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
             </div>
+
+            {user.name}
 
             {/* Icons + Profile */}
             <div className="flex items-center gap-4">
@@ -90,7 +105,7 @@ const AdminNav = () => {
                         <Menu.Item>
                             {({ active }) => (
                                 <a
-                                    href="#logout"
+                                    onClick={logout}
                                     className={`${active ? 'bg-gray-700' : ''} flex items-center gap-2 px-4 py-2 text-white cursor-pointer`}
                                 >
                                     <ArrowRightOnRectangleIcon className="w-5 h-5" /> Log out

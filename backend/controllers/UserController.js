@@ -28,6 +28,11 @@ const UserController = {
                 message: error.message
             });
         }
+    },
+
+    logout: (req, res) => {
+        res.cookie('jwt', '', { maxAge: 1 });
+        return res.json({ message: "user logged out" });
     }
 }
 

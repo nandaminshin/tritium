@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axios from '../../helpers/Axios';
 
 const Register = () => {
 
@@ -26,9 +26,7 @@ const Register = () => {
                     password
                 };
 
-                let response = await axios.post('http://localhost:3000/api/user/register', data, {
-                    withCredentials: true,
-                });
+                let response = await axios.post('/api/user/register', data);
 
                 if (response.status == 200) {
                     navigate('/');

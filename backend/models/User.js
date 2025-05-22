@@ -15,6 +15,11 @@ const UserSchema = new schema({
     password: {
         type: String,
         required: true
+    },
+    role: {
+        type: String,
+        enum: ['user', 'admin'],
+        default: 'user'
     }
 });
 
@@ -34,7 +39,7 @@ UserSchema.statics.register = async function (name, email, password) {
 UserSchema.statics.login = async function (email, password) {
     let user = await this.findOne({ email });
     if (!user) {
-        throw new Error('user doen not exist');
+        throw new Error('User does not exist');
     }
 
     let isCorrect = await bcrypt.compare(password, user.password);
