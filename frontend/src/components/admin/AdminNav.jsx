@@ -7,13 +7,18 @@ import { useContext } from 'react';
 import axios from '../../helpers/Axios';
 
 const AdminNav = () => {
-    let { user } = useContext(AuthContext);
+    let { user, dispatch } = useContext(AuthContext);
     let navigate = useNavigate();
 
     const logout = async () => {
-        let response = await axios.post('/api/user/logout');
-        if (response.status == 200) {
-            navigate('/login');
+        try {
+            let response = await axios.post('/api/user/logout');
+            if (response.status == 200) {
+                dispatch({ type: 'LOGOUT' });
+                navigate('/login');
+            }
+        } catch (error) {
+            console.log(error);
         }
     }
 

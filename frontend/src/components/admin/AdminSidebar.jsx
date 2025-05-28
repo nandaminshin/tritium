@@ -50,7 +50,7 @@ const AdminSidebar = () => {
                     {pagesOpen && (
                         <ul className="ml-4 pl-4 border-l border-gray-700 mt-1 mb-2 space-y-2">
                             <li>
-                                <NavLink to="course-management"
+                                <NavLink to="manage-courses"
                                 className={({ isActive }) =>
                                     `block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
                                     }`

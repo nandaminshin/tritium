@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Nav from './components/user/Nav.jsx';
 import PageIllustration from './components/user/PageIllustration.jsx';
+import ChatHead from './components/ChatHead.jsx';
 
 function App() {
 
@@ -15,6 +16,7 @@ function App() {
             </div>
             <div className='relative inset-0 z-10'>
                 <Outlet />
+                <ChatHead />
             </div>
         </>
     );

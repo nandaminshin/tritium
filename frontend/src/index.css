@@ -52,3 +52,16 @@ body {
 .level-1-text {
     color: rgb(172, 223, 255);
 }
+
+@keyframes slowBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.bounce-slow {
+  animation: slowBounce 2s infinite ease-in-out;
+}

@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import AdminNav from './components/admin/AdminNav.jsx';
 import AdminSidebar from './components/admin/AdminSidebar.jsx';
+import ChatHead from './components/ChatHead';
 // import './admin.css'; 
 
 
@@ -14,6 +15,7 @@ const AdminLayout = () => {
                     <AdminNav />
                 </div>
                 <Outlet />
+                <ChatHead />
             </div>
         </div>
     );

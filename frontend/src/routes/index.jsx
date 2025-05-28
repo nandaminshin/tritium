@@ -11,6 +11,7 @@ import AdminLayout from '../AdminLayout.jsx';
 import AdminDashboard from '../pages/admin/AdminDashboard.jsx';
 import CreateNewCourse from '../pages/admin/CreateNewCourse.jsx';
 import UserManagement from '../pages/admin/UserManagement.jsx';
+import ManageCourses from "../pages/admin/ManageCourses.jsx";
 import { useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext.jsx";
 
@@ -77,17 +78,18 @@ const index = () => {
                     element: <AdminDashboard />
                 },
                 {
-                    path: 'course-management',
+                    path: 'manage-courses',
+                    element: <ManageCourses />
+                },
+                {
+                    path: 'create-course',
                     element: <CreateNewCourse />
                 },
                 {
                     path: 'user-management',
                     element: <UserManagement />
                 },
-                {
-                    path: 'create-course',
-                    element: <CreateNewCourse />
-                }
+                
             ]
         }
     ]);
