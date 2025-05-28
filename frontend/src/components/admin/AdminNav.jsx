@@ -29,7 +29,7 @@ const AdminNav = () => {
                 />
             </div>
 
-            {user.name}
+            {/* {user.name} */}
 
             {/* Icons + Profile */}
             <div className="flex items-center gap-4">

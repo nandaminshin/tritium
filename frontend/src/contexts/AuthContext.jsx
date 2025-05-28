@@ -1,13 +1,14 @@
 import { createContext, useReducer, useEffect } from "react";
-import axios from '../helpers/Axios';
 
 const AuthContext = createContext();
 
 let AuthReducer = (state, action) => {
     switch (action.type) {
         case 'LOGIN':
+            localStorage.setItem('user', JSON.stringify(action.payload));
             return { ...state, user: action.payload };
         case 'LOGOUT':
+            localStorage.removeItem('user');
             return { ...state, user: null };
         case 'SET_USER':
             return { ...state, user: action.payload };
@@ -23,19 +24,16 @@ const AuthContextProvider = ({ children }) => {
 
     // Check for user authentication on initial load
     useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                const response = await axios.get('/api/user/me');
-                if (response.status === 200) {
-                    dispatch({ type: 'SET_USER', payload: response.data.user });
-                }
-            } catch (error) {
-                console.error('Auth check failed:', error);
-                dispatch({ type: 'LOGOUT' });
+        try {
+            let user = JSON.parse(localStorage.getItem('user'));
+            if (user) {
+                dispatch({ type: 'LOGIN', payload: user});
+            } else {
+                dispatch({ type: 'LOGOUT'});
             }
-        };
-
-        checkAuth();
+        } catch (e) {
+            dispatch({ type: 'LOGOUT'});
+        }
     }, []);
 
     return (

@@ -35,15 +35,50 @@ const AdminSidebar = () => {
                         <Home size={20} /> Dashboard
                     </NavLink>
                 </li>
-                <NavLink
-                    to="course-management"
+                {/* Pages dropdown */}
+                <li className="relative">
+                    <button
+                        onClick={() => setPagesOpen(!pagesOpen)}
+                        className="w-full flex items-center justify-between px-3 py-4 rounded hover:bg-gray-800"
+                    >
+                        <span className="flex items-center gap-2">
+                            <Grid size={20} /> Course Management
+                        </span>
+                        <ChevronDownIcon className={`w-5 h-5 transition-transform ${pagesOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {pagesOpen && (
+                        <ul className="ml-4 pl-4 border-l border-gray-700 mt-1 mb-2 space-y-2">
+                            <li>
+                                <NavLink to="course-management"
+                                className={({ isActive }) =>
+                                    `block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
+                                    }`
+                                }
+                                >Manage All Courses</NavLink>
+                            </li>
+                            <li>
+                                <Link to="create-course" className="block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800">Create New Course</Link>
+                            </li>
+                            <li>
+                                <Link to="#" className="block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800">Course</Link>
+                            </li>
+                            <li>
+                                <Link to="#" className="block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800">Course</Link>
+                            </li>
+                        </ul>
+                    )}
+                </li>
+                
+                {/* <NavLink
+                    to=""
                     className={({ isActive }) =>
                         `flex items-center gap-2 px-3 py-4 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
                         }`
                     }
                 >
                     <Home size={20} /> Course Management
-                </NavLink>
+                </NavLink> */}
                 <NavLink
                     to="user-management"
                     className={({ isActive }) =>
@@ -65,35 +100,7 @@ const AdminSidebar = () => {
                 </li>
                 {/* Other menu items... */}
 
-                {/* Pages dropdown */}
-                <li className="relative">
-                    <button
-                        onClick={() => setPagesOpen(!pagesOpen)}
-                        className="w-full flex items-center justify-between px-3 py-4 rounded hover:bg-gray-800"
-                    >
-                        <span className="flex items-center gap-2">
-                            <Grid size={20} /> Pages
-                        </span>
-                        <ChevronDownIcon className={`w-5 h-5 transition-transform ${pagesOpen ? 'rotate-180' : ''}`} />
-                    </button>
-
-                    {pagesOpen && (
-                        <ul className="ml-4 pl-4 border-l border-gray-700 mt-1 mb-2 space-y-2">
-                            <li>
-                                <Link to="#" className="block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800">Login</Link>
-                            </li>
-                            <li>
-                                <Link to="#" className="block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800">Create account</Link>
-                            </li>
-                            <li>
-                                <Link to="#" className="block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800">Forgot password</Link>
-                            </li>
-                            <li>
-                                <Link to="#" className="block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800">404</Link>
-                            </li>
-                        </ul>
-                    )}
-                </li>
+                
 
                 <li>
                     <Link to="#" className="flex items-center gap-2 px-3 py-4 rounded hover:bg-gray-800 hover:text-purple-400">

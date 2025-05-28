@@ -3,7 +3,7 @@ import React from 'react'
 const CreateNewCourse = () => {
     return (
         <div>
-            This is course
+            This is course new version
         </div>
     )
 }
