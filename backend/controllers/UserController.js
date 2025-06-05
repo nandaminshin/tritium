@@ -33,6 +33,32 @@ const UserController = {
     logout: (req, res) => {
         res.cookie('jwt', '', { maxAge: 1 });
         return res.json({ message: "user logged out" });
+    },
+
+    verifyToken: async (req, res) => {
+        try {
+            const token = req.headers.authorization?.split(' ')[1];
+            if (!token) {
+                return res.status(401).json({
+                    error: 'No token provided'
+                });
+            }
+
+            const user = await User.verifyToken(token);
+            return res.status(200).json({
+                success: true,
+                user: {
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role
+                }
+            });
+        } catch (error) {
+            return res.status(401).json({
+                error: error.message
+            });
+        }
     }
 }
 

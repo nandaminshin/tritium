@@ -4,7 +4,6 @@ import PageIllustration from './components/user/PageIllustration.jsx';
 import ChatHead from './components/ChatHead.jsx';
 
 function App() {
-
     return (
         <>
             <div className='sticky-top-0'>

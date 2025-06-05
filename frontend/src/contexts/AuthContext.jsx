@@ -10,8 +10,6 @@ let AuthReducer = (state, action) => {
         case 'LOGOUT':
             localStorage.removeItem('user');
             return { ...state, user: null };
-        case 'SET_USER':
-            return { ...state, user: action.payload };
         default:
             return state;
     }
@@ -22,7 +20,7 @@ const AuthContextProvider = ({ children }) => {
         user: null,
     });
 
-    // Check for user authentication on initial load
+    // Initial auth check
     useEffect(() => {
         try {
             let user = JSON.parse(localStorage.getItem('user'));

@@ -19,5 +19,6 @@ router.post('/register', [
     HandleErrorMessage
 ], UserController.register);
 router.post('/logout', UserController.logout);
+router.get('/verify-token', UserController.verifyToken);
 
 module.exports = router;

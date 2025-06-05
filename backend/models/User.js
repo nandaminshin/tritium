@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const UserSchema = new schema({
     name: {
@@ -18,7 +19,7 @@ const UserSchema = new schema({
     },
     role: {
         type: String,
-        enum: ['user', 'admin'],
+        enum: ['user', 'admin', 'superAdmin'],
         default: 'user'
     }
 });
@@ -47,6 +48,29 @@ UserSchema.statics.login = async function (email, password) {
         return user;
     } else {
         throw new Error('Password incorrect');
+    }
+}
+
+UserSchema.statics.verifyToken = async function (token) {
+    try {
+        // Verify the token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+
+        // Find user by id from decoded token
+        const user = await this.findById(decoded._id).select('password');
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        return user;
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError') {
+            throw new Error('Invalid token');
+        }
+        if (error.name === 'TokenExpiredError') {
+            throw new Error('Token expired');
+        }
+        throw error;
     }
 }
 

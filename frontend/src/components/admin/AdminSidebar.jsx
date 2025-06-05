@@ -6,6 +6,10 @@ import { ChevronDownIcon } from '@heroicons/react/24/outline';
 const AdminSidebar = () => {
     const [pagesOpen, setPagesOpen] = useState(false);
 
+    let courseDropdownClick = () => {
+        setPagesOpen(!pagesOpen);
+    }
+
     return (
         <aside className="w-64 h-screen bg-gray-900 text-white px-4 py-6 space-y-6 flex flex-col overflow-y-auto 
         /* Hide scrollbar for Chrome, Safari and Opera */
@@ -38,7 +42,7 @@ const AdminSidebar = () => {
                 {/* Pages dropdown */}
                 <li className="relative">
                     <button
-                        onClick={() => setPagesOpen(!pagesOpen)}
+                        onClick={courseDropdownClick}
                         className="w-full flex items-center justify-between px-3 py-4 rounded hover:bg-gray-800"
                     >
                         <span className="flex items-center gap-2">
@@ -58,7 +62,12 @@ const AdminSidebar = () => {
                                 >Manage All Courses</NavLink>
                             </li>
                             <li>
-                                <Link to="create-course" className="block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800">Create New Course</Link>
+                                <NavLink to="create-course" 
+                                className={({ isActive }) =>
+                                    `block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
+                                    }`
+                                }
+                                >Create New Course</NavLink>
                             </li>
                             <li>
                                 <Link to="#" className="block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800">Course</Link>

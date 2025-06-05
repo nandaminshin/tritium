@@ -14,6 +14,8 @@ import UserManagement from '../pages/admin/UserManagement.jsx';
 import ManageCourses from "../pages/admin/ManageCourses.jsx";
 import { useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext.jsx";
+import AuthNavigator from '../components/AuthNavigator';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const ProtectedRoute = ({ children, requireAuth = true }) => {
     const { user } = useContext(AuthContext);
@@ -33,11 +35,26 @@ const ProtectedRoute = ({ children, requireAuth = true }) => {
     return children;
 };
 
+// Create a client
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            staleTime: 1000 * 60 * 5, // 5 minutes
+            cacheTime: 1000 * 60 * 30, // 30 minutes
+        },
+    },
+});
+
+
 const index = () => {
     const router = createBrowserRouter([
         {
             path: '/',
-            element: <App />,
+            element: (
+                <AuthNavigator>
+                    <App />
+                </AuthNavigator>
+            ),
             children: [
                 {
                     path: '/',
@@ -79,7 +96,11 @@ const index = () => {
                 },
                 {
                     path: 'manage-courses',
-                    element: <ManageCourses />
+                    element: (
+                        <QueryClientProvider client={queryClient}>
+                            <ManageCourses />
+                        </QueryClientProvider>
+                    )
                 },
                 {
                     path: 'create-course',
@@ -93,11 +114,8 @@ const index = () => {
             ]
         }
     ]);
-    return (
-        <div>
-            <RouterProvider router={router} />
-        </div>
-    )
-}
 
-export default index
+    return <RouterProvider router={router} />;
+};
+
+export default index;

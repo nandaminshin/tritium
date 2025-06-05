@@ -2,17 +2,20 @@ const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
 const cors = require('cors');
-const UserRouter = require('./routes/UserRouter')
+const UserRouter = require('./routes/UserRouter');
+const AdminRouter = require('./routes/AdminRouter');
 const cookieParser = require('cookie-parser');
 const AuthMiddleware = require('./middlewares/AuthMiddleware');
 const app = express();
 
+app.use(express.static('public'));
 app.use(express.json());
 app.use(cors({
     origin: "http://localhost:5173",
     credentials: true
 }));
 app.use('/api/user', UserRouter);
+app.use('/api/admin', AdminRouter);
 
 app.use(cookieParser);
 
