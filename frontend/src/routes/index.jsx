@@ -12,14 +12,15 @@ import AdminDashboard from '../pages/admin/AdminDashboard.jsx';
 import CreateNewCourse from '../pages/admin/CreateNewCourse.jsx';
 import UserManagement from '../pages/admin/UserManagement.jsx';
 import ManageCourses from "../pages/admin/ManageCourses.jsx";
+import ManageSingleCourse from "../pages/admin/ManageSingleCourse.jsx";
+import AddLecture from "../pages/admin/AddLecture.jsx";
 import { useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext.jsx";
 import AuthNavigator from '../components/AuthNavigator';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const ProtectedRoute = ({ children, requireAuth = true }) => {
     const { user } = useContext(AuthContext);
-    
     if (requireAuth && !user) {
         return <Navigate to="/login" />;
     }
@@ -27,7 +28,7 @@ const ProtectedRoute = ({ children, requireAuth = true }) => {
     if (!requireAuth && user) {
         if (user.role === 'admin') {
             return <Navigate to="/admin" />;    
-        } else {
+        } else if (user.role === 'user') {
             return <Navigate to="/" />;
         }
     }
@@ -44,7 +45,6 @@ const queryClient = new QueryClient({
         },
     },
 });
-
 
 const index = () => {
     const router = createBrowserRouter([
@@ -88,29 +88,37 @@ const index = () => {
         },
         {
             path: '/admin',
-            element: <AdminLayout />,
+            element: (
+                <QueryClientProvider client={queryClient}>
+                    <AdminLayout />
+                </QueryClientProvider>
+            ),
             children: [
                 {
                     path: '',
-                    element: <AdminDashboard />
+                    element: <AdminDashboard />  
                 },
                 {
                     path: 'manage-courses',
-                    element: (
-                        <QueryClientProvider client={queryClient}>
-                            <ManageCourses />
-                        </QueryClientProvider>
-                    )
+                    element: <ManageCourses />  
                 },
                 {
                     path: 'create-course',
-                    element: <CreateNewCourse />
+                    element: <CreateNewCourse />  
                 },
                 {
                     path: 'user-management',
-                    element: <UserManagement />
+                    element: <UserManagement />  
                 },
                 
+                {
+                    path: 'courses/:courseId',
+                    element: <ManageSingleCourse /> 
+                },
+                {
+                    path: 'courses/:courseId/add-lecture',
+                    element: <AddLecture />
+                }
             ]
         }
     ]);

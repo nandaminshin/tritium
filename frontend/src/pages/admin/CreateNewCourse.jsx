@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import {useNavigate} from 'react-router-dom';
-import axios from '../../helpers/Axios'
+import { useNavigate } from 'react-router-dom';
+import axios from '../../helpers/Axios';
+import { useQueryClient } from '@tanstack/react-query';
 
 const CreateNewCourse = () => {
     const [categories, setCategories] = useState([]);
@@ -13,8 +14,11 @@ const CreateNewCourse = () => {
     const [instructor, setInstructor] = useState({ name: '', id: '' });
     const [intro_video, setIntroVideo] = useState(null);
     const [errors, setErrors] = useState({});
-
+    const [uploadedFiles, setUploadedFiles] = useState({ image: null, intro_video: null });
+    
     let navigate = useNavigate();
+    const queryClient = useQueryClient(); 
+    
     const handleFileChange = (e, type) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -51,34 +55,70 @@ const CreateNewCourse = () => {
         const fileData = new FormData();
         if (image) fileData.append('image', image);
         if (intro_video) fileData.append('intro_video', intro_video);
-        let fileResponse = await axios.post('/api/admin/upload-course-file', fileData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
-        if (fileResponse.status === 200) {
-            let data = {
-                name,
-                description,
-                price: Number(price),
-                level,
-                category,
-                image: fileResponse.data.data?.image || null,
-                instructor: instructor.id,
-                intro_video: fileResponse.data.data?.intro_video || null
-            };
-    
-            try {
-                const response = await axios.post('/api/admin/create-new-course', data);
-                if (response.status === 201) {
-                    navigate('/admin/manage-courses'); 
+        
+        try {
+            // Step 1: Upload files
+            let fileResponse = await axios.post('/api/admin/upload-course-file', fileData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
                 }
-            } catch (error) {
-                console.error('Error creating course:', error);
-                setErrors(error.response.data?.error || {});
+            });
+            
+            if (fileResponse.status === 200) {
+                // Store uploaded filenames for potential cleanup
+                const uploadedFileData = {
+                    image: fileResponse.data.data?.image || null,
+                    intro_video: fileResponse.data.data?.intro_video || null
+                };
+                setUploadedFiles(uploadedFileData);
+                
+                // Step 2: Create course with file references
+                let data = {
+                    name,
+                    description,
+                    price: Number(price),
+                    level,
+                    category,
+                    image: uploadedFileData.image,
+                    instructor: instructor.id,
+                    intro_video: uploadedFileData.intro_video
+                };
+        
+                try {
+                    const response = await axios.post('/api/admin/create-new-course', data);
+                    if (response.status === 201) {
+                        queryClient.invalidateQueries(['courses']);
+                        navigate('/admin/manage-courses'); 
+                    }
+                } catch (error) {
+                    console.error('Error creating course:', error);
+                    setErrors(error.response.data?.error || {});
+                    
+                    // If course creation fails, delete the uploaded files
+                    await cleanupFiles(uploadedFileData);
+                }
+            } else {
+                setErrors(fileResponse.data?.error || {});
             }
-        } else {
-            setErrors(fileResponse.data?.error || {});
+        } catch (error) {
+            console.error('Error uploading files:', error);
+            setErrors(error.response?.data?.error || { general: 'File upload failed' });
+        }
+    };
+    
+    // Function to delete uploaded files if course creation fails
+    const cleanupFiles = async (files) => {
+        try {
+            const filesToDelete = [];
+            if (files.image) filesToDelete.push(files.image);
+            if (files.intro_video) filesToDelete.push(files.intro_video);
+            
+            if (filesToDelete.length > 0) {
+                await axios.post('/api/admin/delete-course-files', { files: filesToDelete });
+                console.log('Cleaned up files after failed course creation');
+            }
+        } catch (error) {
+            console.error('Error cleaning up files:', error);
         }
     };
 

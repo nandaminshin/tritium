@@ -1,14 +1,25 @@
 import { Home, FileText, Layers, PieChart, Grid, Square, Table } from 'lucide-react';
-import { NavLink, Link } from 'react-router-dom';
-import { useState } from 'react';
+import { NavLink, Link, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
 const AdminSidebar = () => {
     const [pagesOpen, setPagesOpen] = useState(false);
+    const location = useLocation();
 
-    let courseDropdownClick = () => {
+    useEffect(() => {
+        const coursePaths = ['/admin/manage-courses', '/admin/create-course', '/admin/courses'];
+        const isCoursePage = coursePaths.some(path => location.pathname.startsWith(path));
+        setPagesOpen(isCoursePage);
+    }, [location]);
+
+    const courseDropdownClick = () => {
         setPagesOpen(!pagesOpen);
     }
+
+    const isCourseActive = location.pathname.startsWith('/admin/manage-courses') || 
+                           location.pathname.startsWith('/admin/create-course') || 
+                           location.pathname.startsWith('/admin/courses');
 
     return (
         <aside className="w-64 h-screen bg-gray-900 text-white px-4 py-6 space-y-6 flex flex-col overflow-y-auto 
@@ -43,7 +54,7 @@ const AdminSidebar = () => {
                 <li className="relative">
                     <button
                         onClick={courseDropdownClick}
-                        className="w-full flex items-center justify-between px-3 py-4 rounded hover:bg-gray-800"
+                        className={`w-full flex items-center justify-between px-3 py-4 rounded hover:bg-gray-800 ${isCourseActive ? 'bg-gray-800 text-purple-400' : ''}`}
                     >
                         <span className="flex items-center gap-2">
                             <Grid size={20} /> Course Management
@@ -56,7 +67,7 @@ const AdminSidebar = () => {
                             <li>
                                 <NavLink to="manage-courses"
                                 className={({ isActive }) =>
-                                    `block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
+                                    `block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive || location.pathname.startsWith('/admin/courses') ? 'bg-gray-800 text-purple-400 font-medium' : ''
                                     }`
                                 }
                                 >Manage All Courses</NavLink>

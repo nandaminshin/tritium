@@ -23,7 +23,8 @@ const CourseSchema = new schema({
         required: true
     },
     category: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
         required: true
     },
     instructor: {
@@ -33,6 +34,12 @@ const CourseSchema = new schema({
     },
     intro_video: {
         type: String
+    },
+    status: {
+        type: String,
+        enum: ['ongoing', 'completed'],
+        default: 'ongoing',
+        required: true
     }
 });
 
@@ -63,7 +70,7 @@ CourseSchema.statics.createCourse = async function (name, description, price, im
 
 CourseSchema.statics.getAllCourses = async function () {
     try {
-        const courses = await this.find().populate('instructor');
+        const courses = await this.find().populate('instructor').populate('category');
         return courses;
     }
     catch (error) {
@@ -73,7 +80,7 @@ CourseSchema.statics.getAllCourses = async function () {
 
 CourseSchema.statics.getCourseById = async function (courseId) {
     try {
-        const course = await this.findById(courseId).populate('instructor');
+        const course = await this.findById(courseId).populate('instructor').populate('category');
         return course;
     }
     catch (error) {

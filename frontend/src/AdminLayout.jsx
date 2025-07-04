@@ -13,7 +13,7 @@ const AdminLayout = () => {
                 <AdminSidebar />
             </div>
             {/* Main Content */}
-            <div className="ml-64 min-h-screen flex flex-col overflow-y-auto">
+            <div className="ml-64 min-h-screen flex flex-col">
                 <div className="p-4">
                     <AdminNav />
                 </div>

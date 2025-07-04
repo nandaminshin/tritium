@@ -14,10 +14,9 @@ app.use(cors({
     origin: "http://localhost:5173",
     credentials: true
 }));
+app.use(cookieParser());
 app.use('/api/user', UserRouter);
 app.use('/api/admin', AdminRouter);
-
-app.use(cookieParser);
 
 app.get('/', (req, res) => {
     return res.json({ "message": "This is server side" });
