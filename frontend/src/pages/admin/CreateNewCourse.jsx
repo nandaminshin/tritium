@@ -10,23 +10,45 @@ const CreateNewCourse = () => {
     const [price, setPrice] = useState('');
     const [level, setLevel] = useState('');
     const [category, setCategory] = useState('');
+    const [newCategory, setNewCategory] = useState('');
     const [image, setImage] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
     const [instructor, setInstructor] = useState({ name: '', id: '' });
     const [intro_video, setIntroVideo] = useState(null);
-    const [errors, setErrors] = useState({});
+    const [videoPreview, setVideoPreview] = useState(null);
+    const [errors, setErrors] = useState('');
     const [uploadedFiles, setUploadedFiles] = useState({ image: null, intro_video: null });
-    
+
     let navigate = useNavigate();
-    const queryClient = useQueryClient(); 
-    
+    const queryClient = useQueryClient();
+
     const handleFileChange = (e, type) => {
         const file = e.target.files[0];
         if (!file) return;
-        
+
         if (type === 'image') {
-            setImage(file); 
+            setImage(file);
+            setImagePreview(URL.createObjectURL(file));
         } else if (type === 'video') {
-            setIntroVideo(file); 
+            setIntroVideo(file);
+            setVideoPreview(URL.createObjectURL(file));
+        }
+    };
+
+    const removeVideo = () => {
+        setIntroVideo(null);
+        setVideoPreview(null);
+    };
+
+    const createCategory = async () => {
+        try {
+            const response = await axios.post('/api/admin/create-new-category', { name: newCategory });
+            if (response.status === 201) {
+                setCategories([...categories, response.data.data.category]);
+                setNewCategory('');
+            }
+        } catch (error) {
+            setErrors(error.response.data.error);
         }
     };
 
@@ -48,14 +70,14 @@ const CreateNewCourse = () => {
         }
 
         fetchCategories();
-    }, []); 
+    }, []);
 
     let createCourse = async (e) => {
         e.preventDefault();
         const fileData = new FormData();
         if (image) fileData.append('image', image);
         if (intro_video) fileData.append('intro_video', intro_video);
-        
+
         try {
             // Step 1: Upload files
             let fileResponse = await axios.post('/api/admin/upload-course-file', fileData, {
@@ -63,7 +85,7 @@ const CreateNewCourse = () => {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-            
+
             if (fileResponse.status === 200) {
                 // Store uploaded filenames for potential cleanup
                 const uploadedFileData = {
@@ -71,7 +93,7 @@ const CreateNewCourse = () => {
                     intro_video: fileResponse.data.data?.intro_video || null
                 };
                 setUploadedFiles(uploadedFileData);
-                
+
                 // Step 2: Create course with file references
                 let data = {
                     name,
@@ -83,36 +105,36 @@ const CreateNewCourse = () => {
                     instructor: instructor.id,
                     intro_video: uploadedFileData.intro_video
                 };
-        
+
                 try {
                     const response = await axios.post('/api/admin/create-new-course', data);
                     if (response.status === 201) {
                         queryClient.invalidateQueries(['courses']);
-                        navigate('/admin/manage-courses'); 
+                        navigate('/admin/manage-courses');
                     }
                 } catch (error) {
                     console.error('Error creating course:', error);
-                    setErrors(error.response.data?.error || {});
-                    
+                    setErrors(error.response.data.error);
+
                     // If course creation fails, delete the uploaded files
                     await cleanupFiles(uploadedFileData);
                 }
             } else {
-                setErrors(fileResponse.data?.error || {});
+                setErrors(fileResponse.data?.error);
             }
         } catch (error) {
             console.error('Error uploading files:', error);
-            setErrors(error.response?.data?.error || { general: 'File upload failed' });
+            setErrors(error.response?.data?.error || 'File upload failed');
         }
     };
-    
+
     // Function to delete uploaded files if course creation fails
     const cleanupFiles = async (files) => {
         try {
             const filesToDelete = [];
             if (files.image) filesToDelete.push(files.image);
             if (files.intro_video) filesToDelete.push(files.intro_video);
-            
+
             if (filesToDelete.length > 0) {
                 await axios.post('/api/admin/delete-course-files', { files: filesToDelete });
                 console.log('Cleaned up files after failed course creation');
@@ -141,7 +163,6 @@ const CreateNewCourse = () => {
                             className="w-full rounded-md border border-gray-600 bg-[#101324] px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
                             required
                         />
-                        {errors.name && <p className="text-red-500">{errors.name}</p>}
                     </div>
 
                     <div>
@@ -155,7 +176,6 @@ const CreateNewCourse = () => {
                             className="w-full rounded-md border border-gray-600 bg-[#101324] px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-sky-400 min-h-[100px]"
                             required
                         />
-                        {errors.description && <p className="text-red-500">{errors.description}</p>}
                     </div>
 
                     <div>
@@ -170,7 +190,6 @@ const CreateNewCourse = () => {
                             className="w-full rounded-md border border-gray-600 bg-[#101324] px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
                             required
                         />
-                        {errors.price && <p className="text-red-500">{errors.price}</p>}
                     </div>
 
                     <div>
@@ -185,8 +204,13 @@ const CreateNewCourse = () => {
                             className="w-full rounded-md border border-gray-600 bg-[#101324] px-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-sky-400"
                             required
                         />
-                        {errors.image && <p className="text-red-500">{errors.image}</p>}
                     </div>
+
+                    {imagePreview && (
+                        <div className="mt-4">
+                            <img src={imagePreview} alt="Image Preview" className="w-full h-auto rounded-md" />
+                        </div>
+                    )}
 
                     <div>
                         <label className="block text-sm font-medium level-1-text mb-1">
@@ -203,7 +227,6 @@ const CreateNewCourse = () => {
                             <option value="intermediate">Intermediate</option>
                             <option value="advanced">Advanced</option>
                         </select>
-                        {errors.level && <p className="text-red-500">{errors.level}</p>}
                     </div>
 
                     <div>
@@ -223,7 +246,30 @@ const CreateNewCourse = () => {
                                 </option>
                             ))}
                         </select>
-                        {errors.category && <p className="text-red-500">{errors.category}</p>}
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <div className="w-full">
+                            <label className="block text-sm font-medium level-1-text mb-1">
+                                Or Create New Category
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="Enter new category"
+                                value={newCategory}
+                                onChange={(e) => setNewCategory(e.target.value)}
+                                className="w-full rounded-md border border-gray-600 bg-[#101324] px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
+                            />
+                        </div>
+                        {newCategory && (
+                            <button
+                                type="button"
+                                onClick={createCategory}
+                                className="self-end py-2 px-4 text-white rounded-md auth-btn font-medium"
+                            >
+                                Create
+                            </button>
+                        )}
                     </div>
 
                     <div>
@@ -239,7 +285,6 @@ const CreateNewCourse = () => {
                             required
                             disabled
                         />
-                        {errors.name && <p className="text-red-500">{errors.name}</p>}
                     </div>
 
                     <div>
@@ -253,9 +298,21 @@ const CreateNewCourse = () => {
                             onChange={(e) => handleFileChange(e, 'video')}
                             className="w-full rounded-md border border-gray-600 bg-[#101324] px-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-sky-400"
                         />
-                        {errors.intro_video && <p className="text-red-500">{errors.intro_video}</p>}
                     </div>
 
+                    {videoPreview && (
+                        <div className="mt-4">
+                            <video src={videoPreview} controls className="w-full rounded-md"></video>
+                            <button
+                                type="button"
+                                onClick={removeVideo}
+                                className="mt-2 text-red-500"
+                            >
+                                Remove Video
+                            </button>
+                        </div>
+                    )}
+                    {errors && <p className="text-red-500">{errors}</p>}
                     <button
                         type="submit"
                         className="w-full text-white rounded-md auth-btn py-2 font-medium"

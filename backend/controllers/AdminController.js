@@ -174,6 +174,129 @@ const AdminController = {
             });
         }
     },
+
+    updateCourse: async (req, res) => {
+        const { courseId } = req.params;
+        const { name, description, price, level, category, instructor } = req.body;
+
+        let newImage, newIntroVideo;
+        if (req.files) {
+            newImage = req.files.image ? req.files.image[0].filename : null;
+            newIntroVideo = req.files.intro_video ? req.files.intro_video[0].filename : null;
+        }
+
+        try {
+            const oldCourse = await Course.findById(courseId);
+            if (!oldCourse) {
+                return res.status(404).json({ error: 'Course not found' });
+            }
+
+            const updatedData = {
+                name,
+                description,
+                price,
+                level,
+                category,
+                instructor,
+                image: newImage || oldCourse.image,
+                intro_video: newIntroVideo || oldCourse.intro_video,
+            };
+
+            const course = await Course.updateCourse(courseId, updatedData);
+
+            // Clean up old files
+            const filesToDelete = [];
+            if (newImage && oldCourse.image) {
+                filesToDelete.push(oldCourse.image);
+            }
+            if (newIntroVideo && oldCourse.intro_video) {
+                filesToDelete.push(oldCourse.intro_video);
+            }
+
+            if (filesToDelete.length > 0) {
+                const uploadPath = path.join(__dirname, '../public/courses');
+                filesToDelete.forEach(filename => {
+                    const filePath = path.join(uploadPath, filename);
+                    if (fs.existsSync(filePath)) {
+                        fs.unlinkSync(filePath);
+                    }
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                data: {
+                    course
+                },
+                message: 'Course updated successfully'
+            });
+
+        } catch (error) {
+            // Rollback file uploads if update fails
+            const filesToRollback = [];
+            if (newImage) {
+                filesToRollback.push(newImage);
+            }
+            if (newIntroVideo) {
+                filesToRollback.push(newIntroVideo);
+            }
+
+            if (filesToRollback.length > 0) {
+                const uploadPath = path.join(__dirname, '../public/courses');
+                filesToRollback.forEach(filename => {
+                    const filePath = path.join(uploadPath, filename);
+                    if (fs.existsSync(filePath)) {
+                        fs.unlinkSync(filePath);
+                    }
+                });
+            }
+
+            return res.status(400).json({
+                error: error.message
+            });
+        }
+    },
+
+    deleteCourse: async (req, res) => {
+        try {
+            const { courseId } = req.params;
+            const course = await Course.findById(courseId);
+
+            if (!course) {
+                return res.status(404).json({ error: 'Course not found' });
+            }
+
+            const filesToDelete = [];
+            if (course.image) {
+                filesToDelete.push(course.image);
+            }
+            if (course.intro_video) {
+                filesToDelete.push(course.intro_video);
+            }
+
+            if (filesToDelete.length > 0) {
+                const uploadPath = path.join(__dirname, '../public/courses');
+                filesToDelete.forEach(filename => {
+                    const filePath = path.join(uploadPath, filename);
+                    if (fs.existsSync(filePath)) {
+                        fs.unlinkSync(filePath);
+                    }
+                });
+            }
+
+            await Course.deleteCourse(courseId);
+
+            return res.status(200).json({
+                success: true,
+                message: 'Course deleted successfully'
+            });
+
+        } catch (error) {
+            return res.status(400).json({
+                error: error.message
+            });
+        }
+    }
 };
 
 module.exports = AdminController;

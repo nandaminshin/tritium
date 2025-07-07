@@ -4,10 +4,11 @@ const { body, check, validationResult } = require("express-validator");
 const HandleErrorMessage = require('../middlewares/HandleErrorMessage');
 const AdminController = require('../controllers/AdminController');
 const { upload } = require('../Helpers/UploadFile');
-const AuthMiddleware = require('../middlewares/AuthMiddleware');
+const { requireAuth, requireRole } = require('../middlewares/AuthMiddleware');
 const LectureController = require('../controllers/LectureController');
 const multer = require('multer');
 const path = require('path');
+
 
 router.post('/create-new-category', [
     body('name').notEmpty().withMessage('Category name is required'),
@@ -48,12 +49,12 @@ router.post('/upload-course-file', upload.fields([
     }),
     AdminController.uploadCourseFile);
 
-router.get('/get-all-courses', AuthMiddleware, AdminController.getAllCourses);
-router.get('/get-course-by-id/:courseId', AuthMiddleware, AdminController.getCourseById);
+router.get('/get-all-courses', requireAuth, AdminController.getAllCourses);
+
+router.get('/get-course-by-id/:courseId', requireAuth, AdminController.getCourseById);
 
 // Add this new route for file deletion
-router.post('/delete-course-files', AuthMiddleware, AdminController.deleteCourseFiles);
-
+router.post('/delete-course-files', requireAuth, AdminController.deleteCourseFiles);
 
 // Set up multer for video uploads
 const videoStorage = multer.diskStorage({
@@ -67,23 +68,41 @@ const videoStorage = multer.diskStorage({
 });
 const LectureVideoUpload = multer({ storage: videoStorage });
 
+
 // Lecture routes
-router.get('/courses/:courseId/lectures', AuthMiddleware, LectureController.getLecturesByCourse);
+router.get('/courses/:courseId/lectures', requireAuth, LectureController.getLecturesByCourse);
 
-router.post('/courses/:courseId/lectures', AuthMiddleware, HandleErrorMessage, LectureController.addLecture);
+router.post('/courses/:courseId/lectures', requireAuth, HandleErrorMessage, LectureController.addLecture);
 
-router.post('/courses/:courseId/lectures/upload-video', AuthMiddleware, HandleErrorMessage, LectureVideoUpload.single('video_url'), LectureController.uploadVideo);
+router.post('/courses/:courseId/lectures/upload-video', requireAuth, HandleErrorMessage, LectureVideoUpload.single('video_url'), LectureController.uploadVideo);
 
-router.put('/lectures/reorder', AuthMiddleware, LectureController.reorderLectures);
+router.put('/lectures/reorder', requireAuth, LectureController.reorderLectures);
 
-// router.put('/lectures/:lectureId', AuthMiddleware, LectureVideoUpload.single('video'), LectureController.updateLecture);
+router.delete('/lectures/:lectureId', requireAuth, LectureController.deleteLecture);
 
-router.delete('/lectures/:lectureId', AuthMiddleware, LectureController.deleteLecture);
+router.put('/lectures/:lectureId/hidden', requireAuth, LectureController.toggleLectureHidden);
 
-router.put('/lectures/:lectureId/hidden', AuthMiddleware, LectureController.toggleLectureHidden);
+router.get('/courses/:courseId/lectures/:lectureId', requireAuth, LectureController.getLectureById);
 
-router.get('/courses/:courseId/lectures/:lectureId', AuthMiddleware, LectureController.getLectureById);
+router.put('/courses/:courseId/lectures/:lectureId', requireAuth, LectureController.updateLectureById);
 
-router.put('/courses/:courseId/lectures/:lectureId', AuthMiddleware, LectureController.updateLectureById);
+router.put('/update-course/:courseId', requireAuth, upload.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'intro_video', maxCount: 1 }
+]), [
+    check('courseId').isMongoId().withMessage('Invalid course ID'),
+    body('name').notEmpty().withMessage('Course name is required'),
+    body('description').notEmpty().withMessage('Course description is required'),
+    body('price').notEmpty().isNumeric().withMessage('Price must be a number'),
+    body('level').notEmpty().withMessage('Course level is required'),
+    body('category').notEmpty().withMessage('Course category is required'),
+    HandleErrorMessage
+], AdminController.updateCourse);
+
+router.delete('/delete-course/:courseId', requireAuth, [
+    check('courseId').isMongoId().withMessage('Invalid course ID'),
+    HandleErrorMessage
+], AdminController.deleteCourse);
+
 
 module.exports = router;

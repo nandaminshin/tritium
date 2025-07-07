@@ -22,6 +22,7 @@ const AddLecture = () => {
     const [file, setFile] = useState(null);
     const [preview, setPreview] = useState(null);
     const [error, setError] = useState('');
+    const [modalError, setModalError] = useState('');
     const [uploading, setUploading] = useState(false);
     const [localLectures, setLocalLectures] = useState([]);
     const [editModalOpen, setEditModalOpen] = useState(false);
@@ -89,7 +90,7 @@ const AddLecture = () => {
                 e.target.reset();
             },
             onError: (err) => {
-                setError(err.message);
+                setError(err.response.data.error);
                 setUploading(false);
             }
         });
@@ -140,6 +141,7 @@ const AddLecture = () => {
     const handleEditClick = (lecture) => {
         setEditingLecture(lecture);
         setEditModalOpen(true);
+        setModalError('');
     };
 
     const handleEditSave = (updatedLecture) => {
@@ -147,6 +149,10 @@ const AddLecture = () => {
             onSuccess: () => {
                 setEditModalOpen(false);
                 setEditingLecture(null);
+            },
+            onError: (err) => {
+                setModalError(err.response.data.error);
+                setUploading(false);
             }
         });
     };
@@ -302,19 +308,21 @@ const AddLecture = () => {
                 onClose={handleEditCancel}
                 lecture={editingLecture}
                 onSave={handleEditSave}
+                modalError={modalError}
             />
         </div>
     );
 };
 
 // Modal component for editing a lecture
-function EditLectureModal({ open, onClose, lecture, onSave }) {
+function EditLectureModal({ open, onClose, lecture, onSave, modalError }) {
     const { courseId } = useParams();
     const [title, setTitle] = useState(lecture?.title || '');
     const [hidden, setHidden] = useState(lecture?.hidden || false);
     const [file, setFile] = useState(null);
     const [preview, setPreview] = useState(null);
     const [uploading, setUploading] = useState(false);
+    // const [modalError, setModalError] = useState('');
 
     useEffect(() => {
         setTitle(lecture?.title || '');
@@ -405,6 +413,9 @@ function EditLectureModal({ open, onClose, lecture, onSave }) {
                         <label htmlFor="edit-hidden-checkbox" className="text-sm">Hidden</label>
                     </div>
                 </div>
+                {modalError && (
+                    <div className="text-red-500 text-sm mt-2">{modalError}</div>
+                )}
                 <div className="flex justify-end gap-2 mt-6">
                     <button
                         onClick={onClose}

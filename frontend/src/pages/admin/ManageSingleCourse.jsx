@@ -2,11 +2,14 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCourseById } from '../../helpers/useCourseQueries';
 import { useLectures } from '../../helpers/useLectureQueries';
+import axios from '../../helpers/Axios';
+import { useQueryClient } from '@tanstack/react-query';
 
 const ManageSingleCourse = () => {
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
     const { courseId } = useParams();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const { data: course, isLoading, isError, error } = useCourseById(courseId);
     const { data: lectures = [] } = useLectures(courseId);
 
@@ -23,11 +26,15 @@ const ManageSingleCourse = () => {
     }
 
     const handleDelete = async () => {
-        // Implement delete functionality here
         if (window.confirm('Are you sure you want to delete this course?')) {
-            // Call API to delete course
-            // On success, navigate back to courses list
-            navigate('/admin/courses');
+            try {
+                await axios.delete(`/api/admin/delete-course/${courseId}`);
+                queryClient.invalidateQueries(['courses']);
+                navigate('/admin/manage-courses');
+            } catch (error) {
+                console.error('Error deleting course:', error);
+                // Handle error appropriately
+            }
         }
     };
 
@@ -87,14 +94,14 @@ const ManageSingleCourse = () => {
                     <h2 className="text-xl font-semibold mb-4">Course Management</h2>
                     <div className="flex space-x-4">
                         <button
-                            onClick={() => navigate(`/admin/cgourses/edit/${courseId}`)}
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+                            onClick={() => navigate(`/admin/courses/edit/${courseId}`)}
+                            className="px-3 py-1 rounded text-sm font-semibold shadow-sm transition-colors border border-yellow-600 bg-yellow-950 text-yellow-300 hover:bg-yellow-900 cursor-pointer"
                         >
                             Edit Course
                         </button>
                         <button
                             onClick={handleDelete}
-                            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+                            className="px-3 py-1 rounded text-sm font-semibold shadow-sm transition-colors border border-red-600 bg-red-950 text-red-400 hover:bg-red-900 cursor-pointer"
                         >
                             Delete Course
                         </button>
@@ -105,7 +112,7 @@ const ManageSingleCourse = () => {
                     <h2 className="text-xl font-semibold mb-4">Course Materials</h2>
                     <button
                         onClick={() => navigate(`/admin/courses/${courseId}/add-lecture`)}
-                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+                        className="px-3 py-1 rounded text-sm font-semibold shadow-sm transition-colors border border-green-600 bg-green-950 text-green-400 hover:bg-green-900 cursor-pointer"
                     >
                         Add Lecture
                     </button>

@@ -25,31 +25,15 @@ const LectureController = {
         try {
             const { title, order, video_url } = req.body;
             const { courseId } = req.params;
-            let lecture;
-            try {
-                lecture = await Lecture.create({
-                    title,
-                    video_url,
-                    order,
-                    course: courseId
-                });
-            } catch (dbError) {
-                // Rollback uploaded file if DB operation fails
-                const filePath = path.join(__dirname, '../public/courses/lectures', video_url);
-                if (fs.existsSync(filePath)) {
-                    fs.unlinkSync(filePath);
-                }
-                return res.status(400).json({ error: dbError.message || 'Lecture creation failed' });
-            }
+            const lecture = await Lecture.addLecture(title, order, video_url, courseId);
             return res.status(201).json({
                 success: true,
                 data: { lecture },
                 message: 'Lecture added successfully'
             });
         } catch (error) {
-            // Also try to rollback file if it exists and error is thrown before DB
-            if (req.file && req.file.filename) {
-                const filePath = path.join(__dirname, '../public/courses/lectures', req.file.filename);
+            if (req.body.video_url) {
+                const filePath = path.join(__dirname, '../public/courses/lectures', req.body.video_url);
                 if (fs.existsSync(filePath)) {
                     fs.unlinkSync(filePath);
                 }
@@ -180,8 +164,8 @@ const LectureController = {
     updateLectureById: async (req, res) => {
         try {
             const { lectureId } = req.params;
-            const { title, hidden, video_url } = req.body;
-            const data = { title, hidden };
+            const { title, hidden, course, video_url } = req.body;
+            const data = { title, hidden, course };
             if (video_url) {
                 data.video_url = video_url;
             }

@@ -14,25 +14,43 @@ import UserManagement from '../pages/admin/UserManagement.jsx';
 import ManageCourses from "../pages/admin/ManageCourses.jsx";
 import ManageSingleCourse from "../pages/admin/ManageSingleCourse.jsx";
 import AddLecture from "../pages/admin/AddLecture.jsx";
+import EditCourse from "../pages/admin/EditCourse.jsx";
 import { useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext.jsx";
 import AuthNavigator from '../components/AuthNavigator';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const ProtectedRoute = ({ children, requireAuth = true }) => {
-    const { user } = useContext(AuthContext);
+import SuperAdminLayout from '../SuperAdminLayout.jsx';
+import SuperAdminDashboard from '../pages/superAdmin/SuperAdminDashboard.jsx';
+
+const ProtectedRoute = ({ children, requireAuth = true, allowedRoles }) => {
+    const { user, loading } = useContext(AuthContext);
+
+    if (loading) {
+        // You can return a spinner or null
+        return <div>Loading...</div>;
+    }
+
     if (requireAuth && !user) {
         return <Navigate to="/login" />;
     }
-    
+
+    if (allowedRoles && !allowedRoles.includes(user?.role)) {
+        // a little alert to show the user that they are not authorized to view the page
+        alert('You are not authorized to view this page');
+        return <Navigate to="/" />;
+    }
+
     if (!requireAuth && user) {
         if (user.role === 'admin') {
-            return <Navigate to="/admin" />;    
+            return <Navigate to="/admin" />;
+        } else if (user.role === 'superAdmin') {
+            return <Navigate to="/super-admin" />;
         } else if (user.role === 'user') {
             return <Navigate to="/" />;
         }
     }
-    
+
     return children;
 };
 
@@ -90,34 +108,56 @@ const index = () => {
             path: '/admin',
             element: (
                 <QueryClientProvider client={queryClient}>
-                    <AdminLayout />
+                    <ProtectedRoute allowedRoles={['admin']}>
+                        <AdminLayout />
+                    </ProtectedRoute>
                 </QueryClientProvider>
             ),
             children: [
                 {
                     path: '',
-                    element: <AdminDashboard />  
+                    element: <AdminDashboard />
                 },
                 {
                     path: 'manage-courses',
-                    element: <ManageCourses />  
+                    element: <ManageCourses />
                 },
                 {
                     path: 'create-course',
-                    element: <CreateNewCourse />  
+                    element: <CreateNewCourse />
                 },
                 {
                     path: 'user-management',
-                    element: <UserManagement />  
+                    element: <UserManagement />
                 },
-                
+
                 {
                     path: 'courses/:courseId',
-                    element: <ManageSingleCourse /> 
+                    element: <ManageSingleCourse />
                 },
                 {
                     path: 'courses/:courseId/add-lecture',
                     element: <AddLecture />
+                },
+                {
+                    path: 'courses/edit/:courseId',
+                    element: <EditCourse />
+                }
+            ]
+        },
+        {
+            path: '/super-admin',
+            element: (
+                <QueryClientProvider client={queryClient}>
+                    <ProtectedRoute allowedRoles={['superAdmin']}>
+                        <SuperAdminLayout />
+                    </ProtectedRoute>
+                </QueryClientProvider>
+            ),
+            children: [
+                {
+                    path: '',
+                    element: <SuperAdminDashboard />
                 }
             ]
         }

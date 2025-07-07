@@ -4,6 +4,7 @@ require('dotenv').config();
 const cors = require('cors');
 const UserRouter = require('./routes/UserRouter');
 const AdminRouter = require('./routes/AdminRouter');
+const SuperAdminRouter = require('./routes/SuperAdminRouter');
 const cookieParser = require('cookie-parser');
 const AuthMiddleware = require('./middlewares/AuthMiddleware');
 const app = express();
@@ -17,6 +18,7 @@ app.use(cors({
 app.use(cookieParser());
 app.use('/api/user', UserRouter);
 app.use('/api/admin', AdminRouter);
+app.use('/api/super-admin', SuperAdminRouter);
 
 app.get('/', (req, res) => {
     return res.json({ "message": "This is server side" });
