@@ -69,31 +69,41 @@ const AddLecture = () => {
 
         let formData = new FormData();
         formData.set('video_url', file);
-        let video_url_response = await axios.post(`api/admin/courses/${courseId}/lectures/upload-video`, formData, {
-            headers: {
-                Accept: "multipart/form-data"
-            }
-        });
 
-        let lectureData = {
-            title,
-            order,
-            video_url: video_url_response.data.video_url
+        try {
+            const videoUploadResponse = await axios.post(`api/admin/courses/${courseId}/lectures/upload-video`, formData, {
+                headers: {
+                    Accept: "multipart/form-data"
+                }
+            });
+
+            const { video_url, duration } = videoUploadResponse.data;
+
+            let lectureData = {
+                title,
+                order,
+                video_url,
+                duration
+            };
+
+            addLectureMutation.mutate(lectureData, {
+                onSuccess: () => {
+                    setTitle('');
+                    setOrder('');
+                    setFile(null);
+                    setPreview(null);
+                    setUploading(false);
+                    e.target.reset();
+                },
+                onError: (err) => {
+                    setError(err.response?.data?.error || 'Failed to add lecture.');
+                    setUploading(false);
+                }
+            });
+        } catch (err) {
+            setError(err.response?.data?.error || 'Failed to upload video.');
+            setUploading(false);
         }
-        addLectureMutation.mutate(lectureData, {
-            onSuccess: () => {
-                setTitle('');
-                setOrder('');
-                setFile(null);
-                setPreview(null);
-                setUploading(false);
-                e.target.reset();
-            },
-            onError: (err) => {
-                setError(err.response.data.error);
-                setUploading(false);
-            }
-        });
     };
 
     const handleDelete = (lectureId) => {
@@ -355,16 +365,18 @@ function EditLectureModal({ open, onClose, lecture, onSave, modalError }) {
             formData.append('old_video_url', lecture.video_url);
 
             try {
-                // Upload new video
+                // Upload new video and get back the new URL and duration
                 const res = await axios.post(`/api/admin/courses/${courseId}/lectures/upload-video`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
                 updatedLecture.video_url = res.data.video_url;
+                updatedLecture.duration = res.data.duration; // Capture the new duration
             } catch (error) {
                 console.error('Error uploading file:', error);
                 setUploading(false);
+                // Optionally set a modal error message here
                 return; // Stop if upload fails
             }
         }

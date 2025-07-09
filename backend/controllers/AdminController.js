@@ -3,8 +3,107 @@ const Category = require('../models/Category');
 const Lecture = require('../models/Lecture');
 const fs = require('fs');
 const path = require('path');
+const User = require('../models/User');
 
 const AdminController = {
+    getDashboardStats: async (req, res) => {
+        try {
+            const adminId = req.user.id;
+
+            // Get user for account age
+            const adminUser = await User.findById(adminId);
+
+            // Get courses created by the admin
+            const courses = await Course.find({ instructor: adminId });
+            const courseCount = courses.length;
+
+            // Get lectures from those courses
+            const courseIds = courses.map(course => course._id);
+            const lectures = await Lecture.find({ course: { $in: courseIds } });
+            const lectureCount = lectures.length;
+
+            // Mock data for now
+            const totalStudents = 583; // Mock
+            const averageRating = 4.8; // Mock
+            const contributionHours = lectures.reduce((acc, lecture) => {
+                // Add the duration of each lecture (assuming it's stored in seconds)
+                return acc + (lecture.duration || 0);
+            }, 0) / 3600; // Convert total seconds to hours
+
+
+            return res.status(200).json({
+                success: true,
+                data: {
+                    courseCount,
+                    lectureCount,
+                    totalStudents,
+                    averageRating,
+                    contributionHours: contributionHours.toFixed(2),
+                    accountCreatedAt: adminUser.createdAt // Assuming User model has createdAt
+                },
+                message: 'Dashboard stats fetched successfully'
+            });
+
+        } catch (error) {
+            return res.status(400).json({
+                error: error.message
+            });
+        }
+    },
+
+    updateProfile: async (req, res) => {
+        const { id } = req.user;
+        const { name, email } = req.body;
+        const newProfileImage = req.file;
+
+        try {
+            const user = await User.findById(id);
+            if (!user) {
+                if (newProfileImage) {
+                    const newImagePath = path.join(__dirname, '../public/users', newProfileImage.filename);
+                    if (fs.existsSync(newImagePath)) {
+                        fs.unlinkSync(newImagePath);
+                    }
+                }
+                return res.status(404).json({ error: 'User not found' });
+            }
+
+            const oldProfileImage = user.profile_image;
+            const updatedData = {
+                name,
+                email,
+                profile_image: newProfileImage ? newProfileImage.filename : oldProfileImage,
+            };
+
+            const updatedUser = await User.updateUser(id, updatedData);
+
+            if (newProfileImage && oldProfileImage) {
+                const oldImagePath = path.join(__dirname, '../public/users', oldProfileImage);
+                if (fs.existsSync(oldImagePath)) {
+                    fs.unlinkSync(oldImagePath);
+                }
+            }
+
+            return res.status(200).json({
+                success: true,
+                data: {
+                    user: updatedUser
+                },
+                message: 'Profile updated successfully'
+            });
+
+        } catch (error) {
+            if (newProfileImage) {
+                const newImagePath = path.join(__dirname, '../public/users', newProfileImage.filename);
+                if (fs.existsSync(newImagePath)) {
+                    fs.unlinkSync(newImagePath);
+                }
+            }
+            return res.status(400).json({
+                error: error.message
+            });
+        }
+    },
     createNewCategory: async (req, res) => {
         try {
             const { name } = req.body;

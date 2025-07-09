@@ -17,12 +17,16 @@ const UserSchema = new schema({
         type: String,
         required: true
     },
+    profile_image: {
+        type: String,
+        unique: true
+    },
     role: {
         type: String,
         enum: ['user', 'admin', 'superAdmin'],
         default: 'user'
     }
-});
+}, { timestamps: true });
 
 UserSchema.statics.register = async function (name, email, password) {
     let salt = await bcrypt.genSalt();
@@ -72,6 +76,14 @@ UserSchema.statics.verifyToken = async function (token) {
         }
         throw error;
     }
+}
+
+UserSchema.statics.updateUser = async function (id, updatedData) {
+    const user = await this.findByIdAndUpdate(id, updatedData, { new: true });
+    if (!user) {
+        throw new Error('User not found');
+    }
+    return user;
 }
 
 module.exports = mongoose.model('User', UserSchema);

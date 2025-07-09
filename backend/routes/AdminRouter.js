@@ -9,6 +9,9 @@ const LectureController = require('../controllers/LectureController');
 const multer = require('multer');
 const path = require('path');
 
+router.use(requireAuth, requireRole('admin'));
+
+router.get('/dashboard-stats', AdminController.getDashboardStats);
 
 router.post('/create-new-category', [
     body('name').notEmpty().withMessage('Category name is required'),
@@ -49,12 +52,12 @@ router.post('/upload-course-file', upload.fields([
     }),
     AdminController.uploadCourseFile);
 
-router.get('/get-all-courses', requireAuth, AdminController.getAllCourses);
+router.get('/get-all-courses', AdminController.getAllCourses);
 
-router.get('/get-course-by-id/:courseId', requireAuth, AdminController.getCourseById);
+router.get('/get-course-by-id/:courseId', AdminController.getCourseById);
 
 // Add this new route for file deletion
-router.post('/delete-course-files', requireAuth, AdminController.deleteCourseFiles);
+router.post('/delete-course-files', AdminController.deleteCourseFiles);
 
 // Set up multer for video uploads
 const videoStorage = multer.diskStorage({
@@ -68,25 +71,42 @@ const videoStorage = multer.diskStorage({
 });
 const LectureVideoUpload = multer({ storage: videoStorage });
 
+const userStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, '../public/users'));
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + '-' + file.originalname);
+    }
+});
+const userProfileUpload = multer({ storage: userStorage });
+
+router.put('/update-profile', userProfileUpload.single('profile_image'), [
+    body('name').notEmpty().withMessage('Name is required'),
+    body('email').isEmail().withMessage('Email is invalid'),
+    HandleErrorMessage
+], AdminController.updateProfile);
+
 
 // Lecture routes
-router.get('/courses/:courseId/lectures', requireAuth, LectureController.getLecturesByCourse);
+router.get('/courses/:courseId/lectures', LectureController.getLecturesByCourse);
 
-router.post('/courses/:courseId/lectures', requireAuth, HandleErrorMessage, LectureController.addLecture);
+router.post('/courses/:courseId/lectures', HandleErrorMessage, LectureController.addLecture);
 
-router.post('/courses/:courseId/lectures/upload-video', requireAuth, HandleErrorMessage, LectureVideoUpload.single('video_url'), LectureController.uploadVideo);
+router.post('/courses/:courseId/lectures/upload-video', HandleErrorMessage, LectureVideoUpload.single('video_url'), LectureController.uploadVideo);
 
-router.put('/lectures/reorder', requireAuth, LectureController.reorderLectures);
+router.put('/lectures/reorder', LectureController.reorderLectures);
 
-router.delete('/lectures/:lectureId', requireAuth, LectureController.deleteLecture);
+router.delete('/lectures/:lectureId', LectureController.deleteLecture);
 
-router.put('/lectures/:lectureId/hidden', requireAuth, LectureController.toggleLectureHidden);
+router.put('/lectures/:lectureId/hidden', LectureController.toggleLectureHidden);
 
-router.get('/courses/:courseId/lectures/:lectureId', requireAuth, LectureController.getLectureById);
+router.get('/courses/:courseId/lectures/:lectureId', LectureController.getLectureById);
 
-router.put('/courses/:courseId/lectures/:lectureId', requireAuth, LectureController.updateLectureById);
+router.put('/courses/:courseId/lectures/:lectureId', LectureController.updateLectureById);
 
-router.put('/update-course/:courseId', requireAuth, upload.fields([
+router.put('/update-course/:courseId', upload.fields([
     { name: 'image', maxCount: 1 },
     { name: 'intro_video', maxCount: 1 }
 ]), [
@@ -99,7 +119,7 @@ router.put('/update-course/:courseId', requireAuth, upload.fields([
     HandleErrorMessage
 ], AdminController.updateCourse);
 
-router.delete('/delete-course/:courseId', requireAuth, [
+router.delete('/delete-course/:courseId', [
     check('courseId').isMongoId().withMessage('Invalid course ID'),
     HandleErrorMessage
 ], AdminController.deleteCourse);

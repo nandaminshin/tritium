@@ -3,6 +3,10 @@ const Course = require('../models/Course');
 const mongoose = require('mongoose');
 const path = require('path');
 const fs = require('fs');
+const ffmpeg = require('fluent-ffmpeg');
+const ffprobeStatic = require('ffprobe-static');
+
+ffmpeg.setFfprobePath(ffprobeStatic.path);
 
 const LectureController = {
     // List all lectures for a course, ordered by 'order'
@@ -23,9 +27,9 @@ const LectureController = {
     // Add a new lecture (with video upload)
     addLecture: async (req, res) => {
         try {
-            const { title, order, video_url } = req.body;
+            const { title, order, video_url, duration } = req.body;
             const { courseId } = req.params;
-            const lecture = await Lecture.addLecture(title, order, video_url, courseId);
+            const lecture = await Lecture.addLecture(title, order, video_url, courseId, duration);
             return res.status(201).json({
                 success: true,
                 data: { lecture },
@@ -45,6 +49,7 @@ const LectureController = {
     uploadVideo: async (req, res) => {
         const { courseId } = req.params;
         const { old_video_url } = req.body;
+        const newVideoPath = req.file.path;
 
         try {
             if (!mongoose.Types.ObjectId.isValid(courseId)) {
@@ -59,8 +64,23 @@ const LectureController = {
                 }
             }
 
-            return res.status(200).json({ video_url: req.file.filename });
+            // Get video duration
+            ffmpeg.ffprobe(newVideoPath, (err, metadata) => {
+                if (err) {
+                    // If ffprobe fails, delete the uploaded file and return an error
+                    fs.unlinkSync(newVideoPath);
+                    return res.status(500).json({ error: 'Could not get video duration.' });
+                }
+                const duration = metadata.format.duration;
+                return res.status(200).json({
+                    video_url: req.file.filename,
+                    duration: Math.round(duration) // Return duration in seconds
+                });
+            });
+
         } catch (error) {
+            // If any other error occurs, delete the uploaded file
+            fs.unlinkSync(newVideoPath);
             return res.status(400).json({ error: error.message });
         }
     },
@@ -164,10 +184,15 @@ const LectureController = {
     updateLectureById: async (req, res) => {
         try {
             const { lectureId } = req.params;
-            const { title, hidden, course, video_url } = req.body;
+            // Include duration in the destructured body
+            const { title, hidden, course, video_url, duration } = req.body;
             const data = { title, hidden, course };
             if (video_url) {
                 data.video_url = video_url;
+            }
+            // Add duration to the data object if it exists
+            if (duration) {
+                data.duration = duration;
             }
             const lecture = await Lecture.updateLectureById(lectureId, data);
             return res.status(200).json({

@@ -25,9 +25,9 @@ function App() {
                 <Nav />
             </div>
 
-            <div className='relative z-0'>
+            {/* <div className='relative z-0'>
                 <PageIllustration />
-            </div>
+            </div> */}
             <div className='relative inset-0 z-10'>
                 <Outlet />
                 <ChatHead />

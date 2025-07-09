@@ -10,7 +10,6 @@ const CreateNewCourse = () => {
     const [price, setPrice] = useState('');
     const [level, setLevel] = useState('');
     const [category, setCategory] = useState('');
-    const [newCategory, setNewCategory] = useState('');
     const [image, setImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [instructor, setInstructor] = useState({ name: '', id: '' });
@@ -38,18 +37,6 @@ const CreateNewCourse = () => {
     const removeVideo = () => {
         setIntroVideo(null);
         setVideoPreview(null);
-    };
-
-    const createCategory = async () => {
-        try {
-            const response = await axios.post('/api/admin/create-new-category', { name: newCategory });
-            if (response.status === 201) {
-                setCategories([...categories, response.data.data.category]);
-                setNewCategory('');
-            }
-        } catch (error) {
-            setErrors(error.response.data.error);
-        }
     };
 
     useEffect(() => {
@@ -246,30 +233,6 @@ const CreateNewCourse = () => {
                                 </option>
                             ))}
                         </select>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        <div className="w-full">
-                            <label className="block text-sm font-medium level-1-text mb-1">
-                                Or Create New Category
-                            </label>
-                            <input
-                                type="text"
-                                placeholder="Enter new category"
-                                value={newCategory}
-                                onChange={(e) => setNewCategory(e.target.value)}
-                                className="w-full rounded-md border border-gray-600 bg-[#101324] px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
-                            />
-                        </div>
-                        {newCategory && (
-                            <button
-                                type="button"
-                                onClick={createCategory}
-                                className="self-end py-2 px-4 text-white rounded-md auth-btn font-medium"
-                            >
-                                Create
-                            </button>
-                        )}
                     </div>
 
                     <div>

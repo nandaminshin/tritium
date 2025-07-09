@@ -80,7 +80,7 @@ const AdminNav = () => {
                 <Menu as="div" className="relative">
                     <Menu.Button className="cursor-pointer">
                         <img
-                            src="/images/tritiumlogo.png"
+                            src={user && user.profile_image ? `${import.meta.env.VITE_BACKEND_URL}/users/${user.profile_image}` : "/images/tritiumlogo.png"}
                             alt="User"
                             className="w-10 h-10 rounded-full border-2 border-gray-400 hover:border-gray-300 transition-colors"
                         />
@@ -89,12 +89,12 @@ const AdminNav = () => {
                     <Menu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-gray-800 shadow-lg ring-1 ring-white/10 focus:outline-none z-50">
                         <Menu.Item>
                             {({ active }) => (
-                                <a
-                                    href="#profile"
+                                <Link
+                                    to="/admin/profile"
                                     className={`${active ? 'bg-gray-700' : ''} flex items-center gap-2 px-4 py-2 text-white cursor-pointer`}
                                 >
                                     <UserIcon className="w-5 h-5" /> Profile
-                                </a>
+                                </Link>
                             )}
                         </Menu.Item>
                         <Menu.Item>

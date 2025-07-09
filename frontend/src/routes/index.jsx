@@ -15,6 +15,7 @@ import ManageCourses from "../pages/admin/ManageCourses.jsx";
 import ManageSingleCourse from "../pages/admin/ManageSingleCourse.jsx";
 import AddLecture from "../pages/admin/AddLecture.jsx";
 import EditCourse from "../pages/admin/EditCourse.jsx";
+import Profile from "../pages/admin/Profile.jsx";
 import { useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext.jsx";
 import AuthNavigator from '../components/AuthNavigator';
@@ -142,6 +143,10 @@ const index = () => {
                 {
                     path: 'courses/edit/:courseId',
                     element: <EditCourse />
+                },
+                {
+                    path: 'profile',
+                    element: <Profile />
                 }
             ]
         },

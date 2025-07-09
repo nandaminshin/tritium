@@ -6,7 +6,7 @@ const UserController = {
         try {
             let { email, password } = req.body;
             let user = await User.login(email, password);
-            let token = createJWT(user._id);
+            let token = createJWT(user);
             res.cookie('jwt', token, { httpOnly: true, maxAge: 3 * 24 * 60 * 60 * 1000 });
             return res.json({ user, token });
         } catch (error) {
@@ -20,7 +20,7 @@ const UserController = {
         try {
             let { name, email, password } = req.body;
             let user = await User.register(name, email, password);
-            let token = createJWT(user._id);
+            let token = createJWT(user);
             res.cookie('jwt', token, { httpOnly: true, maxAge: 3 * 24 * 60 * 60 * 1000 });
             return res.json({ user, token });
         } catch (error) {

@@ -6,7 +6,7 @@ const CategorySchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-});
+}, { timestamps: true });
 
 CategorySchema.statics.createCategory = async function (name) {
     const category = await this.create({ name });

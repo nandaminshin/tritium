@@ -47,7 +47,7 @@ const CourseSchema = new schema({
         default: 'ongoing',
         required: true
     }
-});
+}, { timestamps: true });
 
 CourseSchema.index({ name_normalized: 1, category: 1 }, { unique: true });
 

@@ -16,6 +16,10 @@ const LectureSchema = new schema({
         type: String,
         required: true
     },
+    duration: {
+        type: Number,
+        required: true
+    },
     order: {
         type: Number,
         required: true
@@ -29,7 +33,7 @@ const LectureSchema = new schema({
         type: Boolean,
         default: false
     }
-});
+}, { timestamps: true });
 
 LectureSchema.index({ title_normalized: 1, course: 1 }, { unique: true });
 
@@ -43,7 +47,7 @@ LectureSchema.statics.getLecuresBycourse = async function (courseId) {
     }
 }
 
-LectureSchema.statics.addLecture = async function (title, order, video_url, courseId) {
+LectureSchema.statics.addLecture = async function (title, order, video_url, courseId, duration) {
     const normalizedTitle = title.replace(/\s+/g, '').toLowerCase();
 
     let titleAlreadyExists = await this.findOne({
@@ -66,6 +70,7 @@ LectureSchema.statics.addLecture = async function (title, order, video_url, cour
         title,
         title_normalized: normalizedTitle,
         video_url,
+        duration,
         order,
         course: courseId
     });
@@ -73,28 +78,32 @@ LectureSchema.statics.addLecture = async function (title, order, video_url, cour
 }
 
 LectureSchema.statics.updateLectureById = async function (lectureId, data) {
-    const normalizedTitle = data.title.replace(/\s+/g, '').toLowerCase();
-    let alreadyExists = await this.findOne({
-        title_normalized: normalizedTitle,
-        course: data.course,
-        _id: { $ne: lectureId }
-    });
-    console.log(alreadyExists);
-    if (alreadyExists) {
-        throw new Error('Title already exists');
-    } else {
-        data.title_normalized = normalizedTitle;  // update normalized title in data
+    const updateData = { ...data };
 
-        const lecture = await this.findByIdAndUpdate(
-            lectureId,
-            data,
-            { new: true, runValidators: true }
-        );
-        if (!lecture) {
-            throw new Error('Lecture not found');
+    if (data.title && data.course) {
+        const normalizedTitle = data.title.replace(/\s+/g, '').toLowerCase();
+        let alreadyExists = await this.findOne({
+            title_normalized: normalizedTitle,
+            course: data.course,
+            _id: { $ne: lectureId }
+        });
+
+        if (alreadyExists) {
+            throw new Error('A lecture with this title already exists in this course');
         }
-        return lecture;
+        updateData.title_normalized = normalizedTitle;
     }
+
+    const lecture = await this.findByIdAndUpdate(
+        lectureId,
+        updateData,
+        { new: true, runValidators: true }
+    );
+
+    if (!lecture) {
+        throw new Error('Lecture not found');
+    }
+    return lecture;
 }
 
 
