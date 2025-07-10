@@ -36,7 +36,7 @@ const Login = () => {
     }
 
     return (
-        <div className="flex items-center justify-center px-4 reg-form">
+        <div className="flex items-center justify-center px-4 min-h-[calc(100vh-4rem)]">
             <div className="w-full max-w-md">
                 <h1 className="text-3xl sm:text-4xl font-bold level-1-text text-center mb-8">
                     Welcome back
@@ -89,7 +89,7 @@ const Login = () => {
                 </button>
 
                 <p className="mt-6 text-center text-sm text-gray-400">
-                    Don't you have an account?{" "}
+                    Don&apos;t you have an account?{" "}
                     <Link to="/register" className="text-violet-500 hover:underline">
                         Sign Up
                     </Link>

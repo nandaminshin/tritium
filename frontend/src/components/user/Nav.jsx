@@ -1,5 +1,5 @@
-import React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import {
     Disclosure,
@@ -19,24 +19,25 @@ import axios from '../../helpers/Axios'
 const Nav = () => {
     let { user, dispatch } = useContext(AuthContext);
     let navigate = useNavigate();
+    const location = useLocation();
     const [navigation, setNavigation] = useState([
-        { name: 'Home', href: '/', current: true },
+        { name: 'Home', href: '/', current: false },
         { name: 'Courses', href: '/courses', current: false },
         { name: 'Blogs', href: '/blogs', current: false },
         { name: 'About Us', href: '/about', current: false },
         { name: 'Learning Path', href: '/learning-path', current: false },
     ]);
 
+    useEffect(() => {
+        setNavigation(prev => prev.map(item => ({
+            ...item,
+            current: item.href === location.pathname
+        })));
+    }, [location.pathname]);
+
     function classNames(...classes) {
         return classes.filter(Boolean).join(' ')
     }
-
-    const handleClick = (name) => {
-        setNavigation(prev => prev.map(item => ({
-            ...item,
-            current: item.name === name
-        })));
-    };
 
     const authBtnClick = () => {
         setNavigation(prev => prev.map(item => ({
@@ -87,7 +88,6 @@ const Nav = () => {
                                                 key={item.name}
                                                 to={item.href}
                                                 aria-current={item.current ? 'page' : undefined}
-                                                onClick={() => handleClick(item.name)}
                                                 className={classNames(
                                                     item.current ? 'bg-[#1f2937] level-1-text'
                                                         : 'text-gray-300 hover:bg-[#2c3446] hover: text-white',

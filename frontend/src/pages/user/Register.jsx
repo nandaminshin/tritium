@@ -39,7 +39,7 @@ const Register = () => {
     }
 
     return (
-        <div className="flex items-center justify-center px-4 reg-form">
+        <div className="flex items-center justify-center px-4 py-16 min-h-[calc(100vh-4rem)]">
             <div className="w-full max-w-md">
                 <h1 className="text-3xl sm:text-4xl font-bold level-1-text text-center mb-8">
                     Create an account

@@ -20,5 +20,6 @@ router.post('/register', [
 ], UserController.register);
 router.post('/logout', UserController.logout);
 router.get('/verify-token', UserController.verifyToken);
+router.get('/categories', UserController.getCategories);
 
 module.exports = router;

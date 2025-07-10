@@ -1,5 +1,6 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect, useState } from 'react';
 import { List, User, Layers, Clock } from 'lucide-react';
+import CategoryGrid from '../../components/user/CategoryGrid';
 
 const Home = () => {
     const instructorImages = [
@@ -143,30 +144,37 @@ const Home = () => {
     return (
         <>
             {/* Hero Section */}
-            <section className="relative flex flex-col md:flex-row items-center justify-between min-h-[70vh] text-white overflow-hidden py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Text Content */}
-                <div className="relative z-10 flex-1 max-w-xl text-center md:text-left">
-                    <h1 className="text-4xl md:text-6xl font-extrabold mb-4 leading-tight">
-                        The Best <span className="text-blue-400">Way</span> <br /> to Learn <span className="text-red-500">Anything</span>
-                    </h1>
-                    <p className="text-lg md:text-xl text-slate-200 mb-8">
-                        Equip yourself with our endless collection of courses, resources, and a community that&apos;s second to none.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                        <button className="px-8 py-3 bg-white text-slate-900 font-semibold rounded shadow hover:bg-slate-100 transition">Browse</button>
-                        <button className="px-8 py-3 bg-blue-500 text-white font-semibold rounded shadow hover:bg-blue-600 transition">Get Started</button>
-                    </div>
+            <section className="relative text-white overflow-hidden -mt-20">
+                {/* Background Image and Overlay */}
+                <div className="absolute inset-0 z-0">
+                    <img src="/images/heroBackground.jpg" alt="Background" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black opacity-50"></div>
                 </div>
-                {/* Hero Image */}
-                <div className="relative flex-1 flex justify-center md:justify-end mt-10 md:mt-0 z-10">
-                    <img src="/images/homepageimage1.png" alt="Learning Banner" className="w-80 md:w-[420px] h-auto rounded-xl shadow-2xl object-cover" />
+
+                {/* Content Container */}
+                <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-center md:justify-start min-h-[70vh] pt-36 pb-16">
+                        {/* Text Content */}
+                        <div className="max-w-xl text-center md:text-left">
+                            <h1 className="text-4xl md:text-6xl font-extrabold mb-4 leading-tight">
+                                The Best <span className="text-blue-400">Way</span> <br /> to Learn <span className="text-red-500">Anything</span>
+                            </h1>
+                            <p className="text-lg md:text-xl text-slate-200 mb-8">
+                                Equip yourself with our endless collection of courses, resources, and a community that&apos;s second to none.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                                <button className="px-8 py-3 bg-slate-800 text-white font-semibold rounded-lg shadow-md hover:bg-slate-700 transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">Browse Courses</button>
+                                <button className="px-8 py-3 bg-transparent border-2 border-slate-600 text-slate-300 font-semibold rounded-lg shadow-sm hover:bg-slate-800 hover:text-white transition-all duration-300 cursor-pointer">Get Started</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             {/* Instructors Section */}
             <section className="w-full mt-16">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-start mb-8">
-                    <h2 className="text-3xl md:text-4xl font-extrabold text-white">World-Class Instructors</h2>
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-white">Meet Our Instructors</h2>
                     <div className="w-24 h-1 bg-[#232b3b] rounded mt-2"></div>
                 </div>
                 <div className="relative overflow-x-auto hide-scrollbar" ref={containerRef}>
@@ -192,7 +200,7 @@ const Home = () => {
             {/* Featured Courses Section */}
             <section className="w-full max-w-6xl mx-auto mt-24 px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col items-start mb-10">
-                    <h2 className="text-3xl md:text-4xl font-extrabold text-white">A Stream of Courses</h2>
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-white">Featured Courses</h2>
                     <div className="w-32 h-1 bg-[#232b3b] rounded mt-2"></div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
@@ -216,6 +224,30 @@ const Home = () => {
                 </div>
             </section>
 
+            <CategoryGrid />
+
+            {/* Platform Currency Advertisement Section */}
+            <section className="w-full max-w-3xl mx-auto mt-24 px-4 sm:px-6 lg:px-8">
+                <div className="flex flex-col items-start mb-10">
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-white">Insert Coin to Continue</h2>
+                    <div className="w-56 h-1 bg-[#232b3b] rounded mt-2"></div>
+                </div>
+                <div className="relative rounded-2xl overflow-hidden shadow-lg bg-[#181f2a]">
+                    <img src="/images/coinBackground.jpg" alt="Coin Background" className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none select-none" />
+                    <div className="relative z-10 flex flex-col items-center justify-center p-10 min-h-[340px]">
+                        <div className="flex items-center gap-3 mb-4">
+                            <img src="/images/tritiumlogo.png" alt="coin" className="w-8 h-8" />
+                            <span className="text-yellow-300 font-semibold">Save 50% with annual billing!</span>
+                        </div>
+                        <div className="bg-[#232b3b] rounded-lg px-6 py-2 flex items-center gap-2 mb-6">
+                            <span className="text-white font-bold text-lg">Tritium Coin</span>
+                        </div>
+                        <div className="text-4xl font-extrabold text-white mb-2">$49</div>
+                        <div className="text-slate-300 text-center mb-8 max-w-md">Unlock all premium features, purchase Tritium Coins and enjoy the full experience of our platform. One-time purchase, no recurring fees.</div>
+                        <button className="w-full max-w-xs py-3 bg-slate-800 text-white font-bold rounded-lg shadow-md hover:bg-slate-700 transform hover:-translate-y-1 transition-all duration-300 text-lg cursor-pointer">Purchase Coin</button>
+                    </div>
+                </div>
+            </section>
             <style>{`
                 /* Hide scrollbar for Chrome, Safari and Opera */
                 .hide-scrollbar::-webkit-scrollbar {

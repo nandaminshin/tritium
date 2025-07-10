@@ -10,6 +10,7 @@ import SuperAdminLayout from './SuperAdminLayout.jsx';
 function App() {
     const { user } = useContext(AuthContext);
     const location = useLocation();
+    const showIllustration = ['/login', '/register'].includes(location.pathname);
 
     if (user && user.role === 'admin' && location.pathname.startsWith('/admin')) {
         return <AdminLayout />;
@@ -21,13 +22,16 @@ function App() {
 
     return (
         <>
-            <div className='sticky-top-0'>
+            <div className='sticky top-0 z-50'>
                 <Nav />
             </div>
 
-            {/* <div className='relative z-0'>
-                <PageIllustration />
-            </div> */}
+            {/* {showIllustration && (
+                <div className='relative z-0'>
+                    <PageIllustration />
+                </div>
+            )} */}
+            
             <div className='relative inset-0 z-10'>
                 <Outlet />
                 <ChatHead />

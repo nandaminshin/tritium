@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Category = require('../models/Category');
 const createJWT = require('../Helpers/createJWT');
 
 const UserController = {
@@ -57,6 +58,17 @@ const UserController = {
         } catch (error) {
             return res.status(401).json({
                 error: error.message
+            });
+        }
+    },
+
+    getCategories: async (req, res) => {
+        try {
+            const categories = await Category.getAllCategories();
+            return res.status(200).json(categories);
+        } catch (error) {
+            return res.status(400).json({
+                message: error.message
             });
         }
     }
