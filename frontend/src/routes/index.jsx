@@ -1,3 +1,4 @@
+import PurchaseCoin from "../pages/user/PurchaseCoin.jsx";
 import { createBrowserRouter, RouterProvider, Navigate, Outlet } from "react-router-dom";
 import Home from '../pages/user/Home.jsx';
 import Courses from '../pages/user/Courses.jsx';
@@ -103,6 +104,10 @@ const index = () => {
                     path: '/register',
                     element: <ProtectedRoute requireAuth={false}><Register /></ProtectedRoute>
                 },
+                {
+                    path: '/purchase-coin',
+                    element: <ProtectedRoute><PurchaseCoin /></ProtectedRoute>
+                }
             ]
         },
         {

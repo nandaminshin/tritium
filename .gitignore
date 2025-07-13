@@ -1,0 +1,11 @@
+# VSCode
+.vscode/
+
+# Environment variables
+.env
+backend/.env
+frontend/.env
+
+# Dependencies
+backend/node_modules/
+frontend/node_modules/
