@@ -1,24 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShieldCheck, FileText, BookOpen, Banknote, Upload, X } from 'lucide-react';
+import Axios from '../../helpers/Axios';
 
 const PurchaseCoin = () => {
     const [coinAmount, setCoinAmount] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedPayment, setSelectedPayment] = useState('KBZPay');
+    const [selectedPayment, setSelectedPayment] = useState('');
     const [receipt, setReceipt] = useState(null);
+    const [errors, setErrors] = useState('');
+    const [paymentInfo, setPaymentInfo] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    const coinPrice = 10000; // MMK per coin
-    const totalCost = coinAmount ? coinAmount * coinPrice : 0;
+    useEffect(() => {
+        const fetchPaymentInfo = async () => {
+            try {
+                const response = await Axios.get('/api/user/get-payment-info');
+                if (response.data.success) {
+                    setPaymentInfo(response.data.data);
+                    // Set the first available payment method as the default
+                    const methods = response.data.data;
+                    const firstAvailableMethod = Object.keys(paymentMethodDetails).find(key => methods[key]);
+                    if (firstAvailableMethod) {
+                        setSelectedPayment(firstAvailableMethod);
+                    }
+                } else {
+                    setErrors('Failed to load payment information.');
+                }
+            } catch (error) {
+                setErrors('An error occurred while fetching payment information.');
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchPaymentInfo();
+    }, []);
 
-    const paymentAccounts = {
-        KBZPay: '09123456789',
-        WavePay: '09987654321',
-        CBPay: '09112233445',
+    const paymentMethodDetails = {
+        kPay: { name: 'KBZPay' },
+        wavePay: { name: 'WavePay' },
+        ayaPay: { name: 'AYAPay' },
+        uabPay: { name: 'UABPay' },
+        additionalPay: { name: 'Other' }
     };
 
     const handleAmountChange = (e) => {
         const amount = e.target.value;
-        if (amount === '' || (amount > 0 && !isNaN(amount))) {
+        if (amount === '' || (amount >= 1 && !isNaN(amount))) {
             setCoinAmount(amount);
         }
     };
@@ -30,16 +57,20 @@ const PurchaseCoin = () => {
     };
 
     const handlePurchase = () => {
-        // Here you would handle the form submission, e.g., send data to the backend
-        console.log({
-            coinAmount,
-            totalCost,
-            paymentMethod: selectedPayment,
-            receipt,
-        });
-        setIsModalOpen(false);
-        alert('Purchase confirmation sent! The coins will be added to your account shortly.');
+        // Logic for handling purchase confirmation
     };
+
+    if (loading) {
+        return <div className="min-h-screen flex items-center justify-center text-white">Loading...</div>;
+    }
+
+    if (errors) {
+        return <div className="min-h-screen flex items-center justify-center text-red-500">{errors}</div>;
+    }
+    
+    if (!paymentInfo) {
+        return <div className="min-h-screen flex items-center justify-center text-white">Payment information is not available at the moment.</div>;
+    }
 
     return (
         <>
@@ -60,7 +91,7 @@ const PurchaseCoin = () => {
                             <div className="flex items-center justify-center gap-2">
                                 <span className='text-2xl font-bold'> 1 </span>
                                 <img src="/images/tritiumCoin.png" alt="Tritium Coin" className="w-10 h-10 animate-spin-slow" />
-                                <p className="text-2xl font-bold text-white ml-2"> = <span className="text-yellow-400">{coinPrice.toLocaleString()} MMK</span></p>
+                                <p className="text-2xl font-bold text-white ml-2"> = <span className="text-yellow-400">{paymentInfo.coinPrice} MMK</span></p>
                             </div>
                         </div>
 
@@ -73,12 +104,13 @@ const PurchaseCoin = () => {
                                 onChange={handleAmountChange}
                                 className="w-full bg-[#232b3b] border border-slate-600 rounded-lg px-4 py-3 text-white text-lg text-center font-bold focus:ring-2 focus:ring-cyan-500 focus:outline-none"
                                 placeholder="Enter amount"
+                                min="1"
                             />
                         </div>
 
                         <div className="w-full bg-[#232b3b] rounded-lg p-4 text-center mb-8">
                             <p className="text-slate-300">Total Cost</p>
-                            <p className="text-3xl font-extrabold text-yellow-400">{totalCost.toLocaleString()} MMK</p>
+                            <p className="text-3xl font-extrabold text-yellow-400">{coinAmount * paymentInfo.coinPrice} MMK</p>
                         </div>
 
                         <button onClick={() => setIsModalOpen(true)} className="w-full py-3 bg-cyan-600 text-white font-bold rounded-lg shadow-lg hover:bg-cyan-500 transform hover:-translate-y-1 transition-all duration-300 text-lg cursor-pointer">
@@ -112,13 +144,13 @@ const PurchaseCoin = () => {
 
             {/* Purchase Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center pt-12 pl-4 pr-4 pb-4">
+                <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center pt-28 pl-4 pr-4 pb-4">
                     <div className="relative bg-[#181f2a] border border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg mx-auto text-white p-8">
                         <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
                             <X size={24} />
                         </button>
                         <h2 className="text-2xl font-bold text-cyan-400 mb-4">Confirm Your Purchase</h2>
-                        <p className="text-slate-400 mb-6">Send <span className="font-bold text-yellow-400">{totalCost.toLocaleString()} MMK</span> to the account below and upload your receipt.</p>
+                        <p className="text-slate-400 mb-6">Send <span className="font-bold text-yellow-400">{coinAmount * paymentInfo.coinPrice} MMK</span> to the account below and upload your receipt.</p>
 
                         <div className="space-y-4">
                             <div>
@@ -129,14 +161,14 @@ const PurchaseCoin = () => {
                                     onChange={(e) => setSelectedPayment(e.target.value)}
                                     className="w-full bg-[#232b3b] border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none"
                                 >
-                                    <option>KBZPay</option>
-                                    <option>WavePay</option>
-                                    <option>CBPay</option>
+                                    {Object.entries(paymentMethodDetails).map(([key, { name }]) => (
+                                        paymentInfo[key] && <option key={key} value={key}>{name}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="bg-[#232b3b] rounded-lg p-4 flex items-center justify-between">
                                 <p className="text-slate-300">Account Number:</p>
-                                <p className="font-mono text-lg text-yellow-400">{paymentAccounts[selectedPayment]}</p>
+                                <p className="font-mono text-lg text-yellow-400">{paymentInfo[selectedPayment]}</p>
                             </div>
                             <div>
                                 <label htmlFor="receipt" className="block text-sm font-medium text-slate-300 mb-2">Upload Receipt</label>

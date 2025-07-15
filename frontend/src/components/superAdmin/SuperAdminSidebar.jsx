@@ -92,6 +92,15 @@ const SuperAdminSidebar = () => {
                 >
                     <Users size={20} /> User Management
                 </NavLink>
+                <NavLink
+                    to="currency-management"
+                    className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-4 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
+                        }`
+                    }
+                >
+                    <Users size={20} /> Currency Management
+                </NavLink>
             </ul>
 
             {/* Create Account Button */}

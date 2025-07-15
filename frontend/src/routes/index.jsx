@@ -24,9 +24,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import SuperAdminLayout from '../SuperAdminLayout.jsx';
 import SuperAdminDashboard from '../pages/superAdmin/SuperAdminDashboard.jsx';
+import SuperAdminProfile from '../pages/superAdmin/Profile.jsx';
+import CurrencyManagement from "../pages/superAdmin/CurrencyManagement.jsx";
 
 const ProtectedRoute = ({ children, requireAuth = true, allowedRoles }) => {
     const { user, loading } = useContext(AuthContext);
+
 
     if (loading) {
         // You can return a spinner or null
@@ -168,6 +171,14 @@ const index = () => {
                 {
                     path: '',
                     element: <SuperAdminDashboard />
+                },
+                {
+                    path: 'profile',
+                    element: <SuperAdminProfile />
+                },
+                {
+                    path: 'currency-management',
+                    element: <CurrencyManagement />
                 }
             ]
         }

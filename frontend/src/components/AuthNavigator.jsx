@@ -11,6 +11,9 @@ const AuthNavigator = ({ children }) => {
         if (user) {
             if (user.role === 'admin' && !location.pathname.startsWith('/admin')) {
                 navigate('/admin');
+            } else if (user.role === 'superAdmin' && !location.pathname.startsWith('/super-admin')) {
+                navigate('/super-admin');
+
             } else if (user.role !== 'admin' && location.pathname.startsWith('/admin')) {
                 navigate('/');
             }

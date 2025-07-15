@@ -1,6 +1,8 @@
 const User = require('../models/User');
 const Category = require('../models/Category');
 const createJWT = require('../Helpers/createJWT');
+const { getPaymentInfo } = require('./SuperAdminController');
+const PaymentInfo = require('../models/PaymentInfo');
 
 const UserController = {
     login: async (req, res) => {
@@ -69,6 +71,20 @@ const UserController = {
         } catch (error) {
             return res.status(400).json({
                 message: error.message
+            });
+        }
+    },
+
+    getPaymentInfo: async (req, res) => {
+        try {
+            const paymentInfo = await PaymentInfo.getPaymentInfo();
+            return res.status(200).json({
+                success: true,
+                data: paymentInfo
+            });
+        } catch (error) {
+            return res.status(400).json({
+                error: error.message
             });
         }
     }

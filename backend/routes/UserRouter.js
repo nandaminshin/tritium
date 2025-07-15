@@ -22,4 +22,6 @@ router.post('/logout', UserController.logout);
 router.get('/verify-token', UserController.verifyToken);
 router.get('/categories', UserController.getCategories);
 
+router.get('/get-payment-info', UserController.getPaymentInfo);
+
 module.exports = router;
