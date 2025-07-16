@@ -50,5 +50,9 @@ router.put('/update-payment-info', [
     HandleErrorMessage
 ], SuperAdminController.updatePaymentInfo);
 
+router.get('/purchase-requests', SuperAdminController.getPurchaseRequests);
+router.put('/approve-purchase/:purchaseId', SuperAdminController.approvePurchase);
+router.delete('/purchase-requests/:purchaseId', SuperAdminController.deletePurchaseRequest);
+
 module.exports = router;
 

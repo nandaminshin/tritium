@@ -1,4 +1,4 @@
-import { Home, FileText, Layers, PieChart, Grid, Square, Table, User, Users } from 'lucide-react';
+import { Home, FileText, Layers, PieChart, Grid, Square, Table, User, Users, ShoppingCart } from 'lucide-react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
@@ -100,6 +100,15 @@ const SuperAdminSidebar = () => {
                     }
                 >
                     <Users size={20} /> Currency Management
+                </NavLink>
+                <NavLink
+                    to="purchase-requests"
+                    className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-4 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
+                        }`
+                    }
+                >
+                    <ShoppingCart size={20} /> Purchase Requests
                 </NavLink>
             </ul>
 

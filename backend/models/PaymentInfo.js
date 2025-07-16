@@ -36,7 +36,7 @@ const PaymentInfoSchema = new Schema({
         default: 1000,
         min: 0
     }
-});
+}, { timestamps: true });
 
 PaymentInfoSchema.statics.getPaymentInfo = async function () {
     const paymentInfo = await this.findOne({});

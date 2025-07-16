@@ -26,6 +26,7 @@ import SuperAdminLayout from '../SuperAdminLayout.jsx';
 import SuperAdminDashboard from '../pages/superAdmin/SuperAdminDashboard.jsx';
 import SuperAdminProfile from '../pages/superAdmin/Profile.jsx';
 import CurrencyManagement from "../pages/superAdmin/CurrencyManagement.jsx";
+import PurchaseRequests from "../pages/superAdmin/PurchaseRequests.jsx";
 
 const ProtectedRoute = ({ children, requireAuth = true, allowedRoles }) => {
     const { user, loading } = useContext(AuthContext);
@@ -179,6 +180,10 @@ const index = () => {
                 {
                     path: 'currency-management',
                     element: <CurrencyManagement />
+                },
+                {
+                    path: 'purchase-requests',
+                    element: <PurchaseRequests />
                 }
             ]
         }

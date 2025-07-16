@@ -3,6 +3,7 @@ const Category = require('../models/Category');
 const createJWT = require('../Helpers/createJWT');
 const { getPaymentInfo } = require('./SuperAdminController');
 const PaymentInfo = require('../models/PaymentInfo');
+const PurchaseCoin = require('../models/PurchaseCoin');
 
 const UserController = {
     login: async (req, res) => {
@@ -85,6 +86,49 @@ const UserController = {
         } catch (error) {
             return res.status(400).json({
                 error: error.message
+            });
+        }
+    },
+
+    getPendingPurchase: async (req, res) => {
+        try {
+            const userId = req.user.id;
+            const pendingPurchase = await PurchaseCoin.findOne({ userId, approveStatus: false });
+            return res.status(200).json({
+                success: true,
+                data: pendingPurchase
+            });
+        } catch (error) {
+            return res.status(400).json({
+                error: error.message
+            });
+        }
+    },
+
+    createPurchase: async (req, res) => {
+        try {
+            const { paymentMethod, coinAmount, totalCost } = req.body;
+            const receiptImage = req.file.filename;
+            const userId = req.user.id;
+
+            const purchase = new PurchaseCoin({
+                userId,
+                paymentMethod,
+                coinAmount,
+                totalCost,
+                receiptImage,
+            });
+
+            await purchase.save();
+
+            return res.status(201).json({
+                success: true,
+                message: 'Purchase request created successfully',
+                data: purchase,
+            });
+        } catch (error) {
+            return res.status(400).json({
+                error: error.message,
             });
         }
     }

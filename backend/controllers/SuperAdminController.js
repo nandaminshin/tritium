@@ -2,6 +2,8 @@ const PaymentInfo = require('../models/PaymentInfo');
 const User = require('../models/User');
 const fs = require('fs');
 const path = require('path');
+const PurchaseCoin = require('../models/PurchaseCoin');
+const Student = require('../models/Student');
 
 const SuperAdminController = {
     createPaymentInfo: async (req, res) => {
@@ -176,6 +178,96 @@ const SuperAdminController = {
             res.status(500).json({
                 success: false,
                 message: 'Failed to update payment information',
+                error: error.message
+            });
+        }
+    },
+
+    getPurchaseRequests: async (req, res) => {
+        try {
+            const purchaseRequests = await PurchaseCoin.find({}).populate('userId', 'name email').sort({ createdAt: -1 });
+            res.status(200).json({
+                success: true,
+                data: purchaseRequests
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: 'Failed to retrieve purchase requests',
+                error: error.message
+            });
+        }
+    },
+
+    approvePurchase: async (req, res) => {
+        const { purchaseId } = req.params;
+        try {
+            const purchase = await PurchaseCoin.findById(purchaseId);
+            if (!purchase) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Purchase request not found'
+                });
+            }
+
+            purchase.approveStatus = true;
+            await purchase.save();
+
+            let student = await Student.findOne({ userId: purchase.userId });
+            if (student) {
+                student.coinAmount += purchase.coinAmount;
+                await student.save();
+            } else {
+                student = new Student({
+                    userId: purchase.userId,
+                    coinAmount: purchase.coinAmount
+                });
+                await student.save();
+            }
+
+            res.status(200).json({
+                success: true,
+                message: 'Purchase approved successfully',
+                data: purchase
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: 'Failed to approve purchase',
+                error: error.message
+            });
+        }
+    },
+
+    deletePurchaseRequest: async (req, res) => {
+        const { purchaseId } = req.params;
+        try {
+            const purchase = await PurchaseCoin.findById(purchaseId);
+            if (!purchase) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Purchase request not found'
+                });
+            }
+
+            // Delete the receipt image from the filesystem
+            if (purchase.receiptImage) {
+                const imagePath = path.join(__dirname, '../public/users/receipts', purchase.receiptImage);
+                if (fs.existsSync(imagePath)) {
+                    fs.unlinkSync(imagePath);
+                }
+            }
+
+            await PurchaseCoin.findByIdAndDelete(purchaseId);
+
+            res.status(200).json({
+                success: true,
+                message: 'Purchase request deleted successfully'
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: 'Failed to delete purchase request',
                 error: error.message
             });
         }

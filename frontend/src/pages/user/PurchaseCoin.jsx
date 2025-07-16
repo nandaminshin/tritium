@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { ShieldCheck, FileText, BookOpen, Banknote, Upload, X } from 'lucide-react';
 import Axios from '../../helpers/Axios';
+import { AuthContext } from '../../contexts/AuthContext';
+import SuccessModal from '../../components/SuccessModal';
 
 const PurchaseCoin = () => {
     const [coinAmount, setCoinAmount] = useState(1);
@@ -10,6 +12,10 @@ const PurchaseCoin = () => {
     const [errors, setErrors] = useState('');
     const [paymentInfo, setPaymentInfo] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+    const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+
+    const { user } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchPaymentInfo = async () => {
@@ -17,7 +23,6 @@ const PurchaseCoin = () => {
                 const response = await Axios.get('/api/user/get-payment-info');
                 if (response.data.success) {
                     setPaymentInfo(response.data.data);
-                    // Set the first available payment method as the default
                     const methods = response.data.data;
                     const firstAvailableMethod = Object.keys(paymentMethodDetails).find(key => methods[key]);
                     if (firstAvailableMethod) {
@@ -56,18 +61,51 @@ const PurchaseCoin = () => {
         }
     };
 
-    const handlePurchase = () => {
-        // Logic for handling purchase confirmation
+    const handlePurchase = async () => {
+        if (!receipt) {
+            setErrors('Please upload a receipt.');
+            return;
+        }
+        setSubmitting(true);
+        setErrors('');
+
+        const formData = new FormData();
+        formData.append('userId', user._id);
+        formData.append('paymentMethod', selectedPayment);
+        formData.append('coinAmount', coinAmount);
+        formData.append('totalCost', coinAmount * paymentInfo.coinPrice);
+        formData.append('receiptImage', receipt);
+
+        try {
+            const response = await Axios.post('/api/user/create-purchase', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            if (response.data.success) {
+                setIsModalOpen(false);
+                setIsSuccessModalOpen(true);
+                setReceipt(null);
+                // Dispatch a custom event to notify the app of a new purchase
+                window.dispatchEvent(new Event('purchaseMade'));
+            } else {
+                setErrors(response.data.message || 'An error occurred.');
+            }
+        } catch (error) {
+            setErrors(error.response?.data?.message || 'An error occurred while submitting your request.');
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     if (loading) {
         return <div className="min-h-screen flex items-center justify-center text-white">Loading...</div>;
     }
 
-    if (errors) {
+    if (errors && !isModalOpen) {
         return <div className="min-h-screen flex items-center justify-center text-red-500">{errors}</div>;
     }
-    
+
     if (!paymentInfo) {
         return <div className="min-h-screen flex items-center justify-center text-white">Payment information is not available at the moment.</div>;
     }
@@ -152,6 +190,8 @@ const PurchaseCoin = () => {
                         <h2 className="text-2xl font-bold text-cyan-400 mb-4">Confirm Your Purchase</h2>
                         <p className="text-slate-400 mb-6">Send <span className="font-bold text-yellow-400">{coinAmount * paymentInfo.coinPrice} MMK</span> to the account below and upload your receipt.</p>
 
+                        {errors && <p className="text-red-500 bg-red-900/50 border border-red-700 rounded-lg p-3 mb-4">{errors}</p>}
+
                         <div className="space-y-4">
                             <div>
                                 <label htmlFor="paymentMethod" className="block text-sm font-medium text-slate-300 mb-2">Payment Method</label>
@@ -183,13 +223,19 @@ const PurchaseCoin = () => {
                                     </label>
                                 </div>
                             </div>
-                            <button onClick={handlePurchase} disabled={!receipt} className="w-full py-3 bg-cyan-600 text-white font-bold rounded-lg shadow-lg hover:bg-cyan-500 disabled:bg-slate-600 disabled:cursor-not-allowed transform hover:-translate-y-1 transition-all duration-300 text-lg">
-                                Confirm Purchase
+                            <button onClick={handlePurchase} disabled={!receipt || submitting} className="w-full py-3 bg-cyan-600 text-white font-bold rounded-lg shadow-lg hover:bg-cyan-500 disabled:bg-slate-600 disabled:cursor-not-allowed transform hover:-translate-y-1 transition-all duration-300 text-lg">
+                                {submitting ? 'Submitting...' : 'Confirm Purchase'}
                             </button>
                         </div>
                     </div>
                 </div>
             )}
+
+            <SuccessModal
+                isOpen={isSuccessModalOpen}
+                onClose={() => setIsSuccessModalOpen(false)}
+                message="Your purchase request has been submitted successfully! You will be notified upon approval."
+            />
 
             <style>{`
                 @keyframes spin-slow-3d { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
