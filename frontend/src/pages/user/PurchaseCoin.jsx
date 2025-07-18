@@ -3,42 +3,34 @@ import { ShieldCheck, FileText, BookOpen, Banknote, Upload, X } from 'lucide-rea
 import Axios from '../../helpers/Axios';
 import { AuthContext } from '../../contexts/AuthContext';
 import SuccessModal from '../../components/SuccessModal';
+import { usePaymentInfo } from '../../helpers/usePaymentInfoQuery';
+import { useQueryClient } from '@tanstack/react-query';
 
 const PurchaseCoin = () => {
     const [coinAmount, setCoinAmount] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPayment, setSelectedPayment] = useState('');
     const [receipt, setReceipt] = useState(null);
-    const [errors, setErrors] = useState('');
-    const [paymentInfo, setPaymentInfo] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [submitError, setSubmitError] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
-    const { user } = useContext(AuthContext);
+    const { user, socket } = useContext(AuthContext);
+    const queryClient = useQueryClient();
+    const { data: paymentInfo, isLoading, isError, error } = usePaymentInfo();
 
     useEffect(() => {
-        const fetchPaymentInfo = async () => {
-            try {
-                const response = await Axios.get('/api/user/get-payment-info');
-                if (response.data.success) {
-                    setPaymentInfo(response.data.data);
-                    const methods = response.data.data;
-                    const firstAvailableMethod = Object.keys(paymentMethodDetails).find(key => methods[key]);
-                    if (firstAvailableMethod) {
-                        setSelectedPayment(firstAvailableMethod);
-                    }
-                } else {
-                    setErrors('Failed to load payment information.');
-                }
-            } catch (error) {
-                setErrors('An error occurred while fetching payment information.');
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchPaymentInfo();
-    }, []);
+        const onPriceUpdate = () => {
+            console.log('Received priceUpdated event, invalidating paymentInfo query.');
+            queryClient.invalidateQueries({ queryKey: ['paymentInfo'] });
+        };
+
+        socket.on('priceUpdated', onPriceUpdate);
+
+        return () => {
+            socket.off('priceUpdated', onPriceUpdate);
+        };
+    }, [socket, queryClient]);
 
     const paymentMethodDetails = {
         kPay: { name: 'KBZPay' },
@@ -47,6 +39,15 @@ const PurchaseCoin = () => {
         uabPay: { name: 'UABPay' },
         additionalPay: { name: 'Other' }
     };
+
+    useEffect(() => {
+        if (paymentInfo && !selectedPayment) {
+            const firstAvailableMethod = Object.keys(paymentMethodDetails).find(key => paymentInfo[key]);
+            if (firstAvailableMethod) {
+                setSelectedPayment(firstAvailableMethod);
+            }
+        }
+    }, [paymentInfo, selectedPayment]);
 
     const handleAmountChange = (e) => {
         const amount = e.target.value;
@@ -63,11 +64,11 @@ const PurchaseCoin = () => {
 
     const handlePurchase = async () => {
         if (!receipt) {
-            setErrors('Please upload a receipt.');
+            setSubmitError('Please upload a receipt.');
             return;
         }
         setSubmitting(true);
-        setErrors('');
+        setSubmitError('');
 
         const formData = new FormData();
         formData.append('userId', user._id);
@@ -86,24 +87,23 @@ const PurchaseCoin = () => {
                 setIsModalOpen(false);
                 setIsSuccessModalOpen(true);
                 setReceipt(null);
-                // Dispatch a custom event to notify the app of a new purchase
                 window.dispatchEvent(new Event('purchaseMade'));
             } else {
-                setErrors(response.data.message || 'An error occurred.');
+                setSubmitError(response.data.message || 'An error occurred.');
             }
-        } catch (error) {
-            setErrors(error.response?.data?.message || 'An error occurred while submitting your request.');
+        } catch (err) {
+            setSubmitError(err.response?.data?.message || 'An error occurred while submitting your request.');
         } finally {
             setSubmitting(false);
         }
     };
 
-    if (loading) {
+    if (isLoading) {
         return <div className="min-h-screen flex items-center justify-center text-white">Loading...</div>;
     }
 
-    if (errors && !isModalOpen) {
-        return <div className="min-h-screen flex items-center justify-center text-red-500">{errors}</div>;
+    if (isError) {
+        return <div className="min-h-screen flex items-center justify-center text-red-500">{error.message}</div>;
     }
 
     if (!paymentInfo) {
@@ -190,7 +190,7 @@ const PurchaseCoin = () => {
                         <h2 className="text-2xl font-bold text-cyan-400 mb-4">Confirm Your Purchase</h2>
                         <p className="text-slate-400 mb-6">Send <span className="font-bold text-yellow-400">{coinAmount * paymentInfo.coinPrice} MMK</span> to the account below and upload your receipt.</p>
 
-                        {errors && <p className="text-red-500 bg-red-900/50 border border-red-700 rounded-lg p-3 mb-4">{errors}</p>}
+                        {submitError && <p className="text-red-500 bg-red-900/50 border border-red-700 rounded-lg p-3 mb-4">{submitError}</p>}
 
                         <div className="space-y-4">
                             <div>

@@ -2,8 +2,11 @@ import React, { useRef, useEffect, useState } from 'react';
 import { List, User, Layers, Clock } from 'lucide-react';
 import CategoryGrid from '../../components/user/CategoryGrid';
 import { Link } from 'react-router-dom';
+import { useFeaturedCourses } from '../../helpers/useCourseQueries';
 
 const Home = () => {
+    const { data: featuredCourses, isLoading, isError } = useFeaturedCourses();
+    console.log('all', featuredCourses);
     const instructorImages = [
         { name: 'Mina', role: 'Instructor', img: '/images/mina1.jpg' },
         { name: 'Dubu', role: 'Instructor', img: '/images/dubu2.jpg' },
@@ -82,66 +85,6 @@ const Home = () => {
         };
     }, []);
 
-    // Demo featured courses
-    const featuredCourses = [
-        {
-            title: 'Running Clock',
-            instructor: 'Simon Vrachiotis',
-            episodes: 3,
-            level: 'Beginner',
-            category: 'Tooling',
-        },
-        {
-            title: 'Supercharged Search with Typesense',
-            instructor: 'Jeffrey Way',
-            episodes: 22,
-            level: 'Intermediate',
-            category: 'Tooling',
-        },
-        {
-            title: 'shadcn/ui Deconstructed',
-            instructor: 'Simon Vrachiotis',
-            episodes: 10,
-            level: 'Advanced',
-            category: 'Frameworks',
-        },
-        {
-            title: 'JavaScript Essentials for PHP Developers',
-            instructor: 'Jeremy McPeak',
-            episodes: 35,
-            level: 'Beginner',
-            category: 'Languages',
-        },
-        {
-            title: 'The Definition Series',
-            instructor: 'Jeremy McPeak',
-            episodes: 10,
-            level: 'Beginner',
-            category: 'Tooling',
-        },
-        {
-            title: 'Crafting Vue Modals',
-            instructor: 'Jeffrey Way',
-            episodes: 7,
-            level: 'Intermediate',
-            category: 'Frontend',
-        },
-        {
-            title: 'React from Scratch',
-            instructor: 'Jeremy McPeak',
-            episodes: 15,
-            level: 'Beginner',
-            category: 'Frontend',
-        },
-        {
-            title: 'Object-Oriented Principles in PHP',
-            instructor: 'Jeremy McPeak',
-            episodes: 20,
-            level: 'Advanced',
-            category: 'Languages',
-        },
-    ];
-
     return (
         <>
             {/* Hero Section */}
@@ -205,20 +148,23 @@ const Home = () => {
                     <div className="w-32 h-1 bg-[#232b3b] rounded mt-2"></div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                    {featuredCourses.map((course, idx) => (
+                    {isLoading && <p>Loading...</p>}
+                    {isError && <p>Error fetching courses</p>}
+                    {featuredCourses && featuredCourses.map((course, idx) => (
+                        console.log(course),
                         <div key={idx} className="bg-[#181f2a] rounded-2xl shadow-lg p-6 flex flex-col justify-between items-start hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 min-h-[340px] h-full">
                             <div className="w-full">
                                 <div className="w-20 h-20 rounded-full bg-[#232b3b] flex items-center justify-center mb-4 shadow-md mx-auto">
                                     <img src="/images/tritiumlogo.png" alt="Course Logo" className="w-14 h-14 object-contain" />
                                 </div>
-                                <h3 className="text-xl font-bold text-white mb-1">{course.title}</h3>
-                                <div className="text-slate-300 text-sm mb-4">With {course.instructor}</div>
+                                <h3 className="text-xl font-bold text-white mb-1">{course.name}</h3>
+                                <div className="text-slate-300 text-sm mb-4">With {course.instructor.name}</div>
                                 <div className="w-full border-t border-[#232b3b] my-2"></div>
                             </div>
                             <div className="flex flex-col gap-2 text-slate-300 text-sm w-full mt-2">
-                                <span className="flex items-center gap-2"><List className="text-blue-400 w-4 h-4" /> {course.episodes} Episodes</span>
+                                <span className="flex items-center gap-2"><List className="text-blue-400 w-4 h-4" /> {course.lectureCount} Episodes</span>
                                 <span className="flex items-center gap-2"><User className="text-green-400 w-4 h-4" /> {course.level}</span>
-                                <span className="flex items-center gap-2"><Layers className="text-purple-400 w-4 h-4" /> {course.category}</span>
+                                <span className="flex items-center gap-2"><Layers className="text-purple-400 w-4 h-4" /> {course.category.name}</span>
                             </div>
                         </div>
                     ))}

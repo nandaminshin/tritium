@@ -75,9 +75,11 @@ const index = () => {
         {
             path: '/',
             element: (
-                <AuthNavigator>
-                    <App />
-                </AuthNavigator>
+                <QueryClientProvider client={queryClient}>
+                    <AuthNavigator>
+                        <App />
+                    </AuthNavigator>
+                </QueryClientProvider>
             ),
             children: [
                 {

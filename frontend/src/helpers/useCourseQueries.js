@@ -31,3 +31,18 @@ export const useCourseById = (courseId) => {
         enabled: !!courseId, // Only run the query if courseId exists
     })
 }
+
+// Hook for fetching featured courses
+export const useFeaturedCourses = () => {
+    return useQuery({
+        queryKey: ['featured-courses'],
+        queryFn: async () => {
+            const response = await axios.get('/api/user/featured-courses');
+            if (response.status === 200) {
+                return response.data;
+            } else {
+                throw new Error(response.data.message || 'Failed to fetch featured courses');
+            }
+        },
+    })
+}

@@ -8,6 +8,7 @@ import AdminLayout from './AdminLayout.jsx';
 import SuperAdminLayout from './SuperAdminLayout.jsx';
 import Axios from './helpers/Axios.js';
 import PendingRequest from './components/user/PendingRequest.jsx';
+import Footer from './components/user/Footer.jsx';
 
 function App() {
     const { user } = useContext(AuthContext);
@@ -52,17 +53,18 @@ function App() {
     }
 
     return (
-        <>
-            <div className='sticky top-0 z-50'>
+        <div className="flex flex-col min-h-screen">
+            <header className='sticky top-0 z-50'>
                 <Nav />
-            </div>
+            </header>
             
-            <div className='relative inset-0 z-10'>
+            <main className='relative flex-grow z-10'>
                 <Outlet />
                 <ChatHead />
                 {hasPending && <PendingRequest />}
-            </div>
-        </>
+            </main>
+            <Footer />
+        </div>
     );
 }
 

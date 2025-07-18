@@ -54,6 +54,7 @@ router.post('/register', [
 router.post('/logout', UserController.logout);
 router.get('/verify-token', UserController.verifyToken);
 router.get('/categories', UserController.getCategories);
+router.get('/featured-courses', UserController.getFeaturedCourses);
 
 router.get('/get-payment-info', UserController.getPaymentInfo);
 router.get('/get-pending-purchase', requireAuth, UserController.getPendingPurchase);

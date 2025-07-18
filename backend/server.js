@@ -6,13 +6,35 @@ const UserRouter = require('./routes/UserRouter');
 const AdminRouter = require('./routes/AdminRouter');
 const SuperAdminRouter = require('./routes/SuperAdminRouter');
 const cookieParser = require('cookie-parser');
-const AuthMiddleware = require('./middlewares/AuthMiddleware');
+const http = require('http');
+const { Server } = require("socket.io");
+
 const app = express();
+const httpServer = http.createServer(app);
+
+const io = new Server(httpServer, {
+    cors: {
+        origin: process.env.FRONTEND_URL || "http://localhost:5173",
+        methods: ["GET", "POST"]
+    }
+});
+
+io.on('connection', (socket) => {
+    console.log(`Socket connected: ${socket.id}`);
+    socket.on('disconnect', () => {
+        console.log(`Socket disconnected: ${socket.id}`);
+    });
+});
+
+app.use((req, res, next) => {
+    req.io = io;
+    next();
+});
 
 app.use(express.static('public'));
 app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
     credentials: true
 }));
 app.use(cookieParser());
@@ -28,7 +50,7 @@ const mongoURL = process.env.MONGO_URL;
 
 mongoose.connect(mongoURL).then(() => {
     console.log('Connected to db');
-    app.listen(3000, () => {
+    httpServer.listen(3000, () => {
         console.log("App is running on port 3000");
     })
 }).catch((err) => {

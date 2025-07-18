@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Category = require('../models/Category');
+const Course = require('../models/Course');
 const createJWT = require('../Helpers/createJWT');
 const { getPaymentInfo } = require('./SuperAdminController');
 const PaymentInfo = require('../models/PaymentInfo');
@@ -61,6 +62,69 @@ const UserController = {
         } catch (error) {
             return res.status(401).json({
                 error: error.message
+            });
+        }
+    },
+
+    getFeaturedCourses: async (req, res) => {
+        try {
+            const courses = await Course.aggregate([
+                { $sort: { createdAt: -1 } },
+                { $limit: 8 },
+                {
+                    $lookup: {
+                        from: 'lectures',
+                        localField: '_id',
+                        foreignField: 'course',
+                        as: 'lectures'
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'categories',
+                        localField: 'category',
+                        foreignField: '_id',
+                        as: 'category'
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'instructor',
+                        foreignField: '_id',
+                        as: 'instructor'
+                    }
+                },
+                {
+                    $project: {
+                        name: 1,
+                        description: 1,
+                        level: 1,
+                        price: 1,
+                        image: '$image',
+                        introVideo: '$intro_video',
+                        createdAt: 1,
+                        lectureCount: { $size: '$lectures' },
+                        category: { $arrayElemAt: ['$category', 0] },
+                        instructor: { $arrayElemAt: ['$instructor', 0] }
+                    }
+                },
+                {
+                    $project: {
+                        'instructor.password': 0,
+                        'instructor.email': 0,
+                        'instructor.role': 0,
+                        'instructor.coin': 0,
+                        'instructor.courses': 0,
+                        'instructor.createdAt': 0,
+                        'instructor.updatedAt': 0
+                    }
+                }
+            ]);
+            return res.status(200).json(courses);
+        } catch (error) {
+            return res.status(400).json({
+                message: error.message
             });
         }
     },

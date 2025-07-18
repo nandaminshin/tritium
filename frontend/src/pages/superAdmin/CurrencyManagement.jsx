@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import Axios from '../../helpers/Axios';
 import SuccessModal from '../../components/SuccessModal';
+import { useUpdatePaymentInfo } from '../../helpers/usePaymentInfoQuery';
+
+const fetchPaymentInfo = async () => {
+    const response = await Axios.get('/api/super-admin/get-payment-info');
+    return response.data.data;
+};
 
 const CurrencyManagement = () => {
     const [formData, setFormData] = useState({
@@ -11,51 +18,47 @@ const CurrencyManagement = () => {
         uabPay: '',
         additionalPay: ''
     });
-    const [loading, setLoading] = useState(true);
-    const [errors, setErrors] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const { data: paymentInfo, isLoading, isError, error: queryError } = useQuery({
+        queryKey: ['paymentInfoAdmin'],
+        queryFn: fetchPaymentInfo,
+    });
+
+    const mutation = useUpdatePaymentInfo();
+
     useEffect(() => {
-        const fetchPaymentInfo = async () => {
-            try {
-                const response = await Axios.get('/api/super-admin/get-payment-info');
-                setFormData(response.data.data);
-                setLoading(false);
-            } catch (error) {
-                console.error('Failed to fetch payment info:', error);
-                setErrors('Failed to load data.');
-                setLoading(false);
-            }
-        };
-        fetchPaymentInfo();
-    }, []);
+        if (paymentInfo) {
+            setFormData(paymentInfo);
+        }
+    }, [paymentInfo]);
+
+    useEffect(() => {
+        if (mutation.isSuccess) {
+            setIsModalOpen(true);
+        }
+    }, [mutation.isSuccess]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        setErrors('');
-        try {
-            const response = await Axios.put('/api/super-admin/update-payment-info', formData);
-            if (response.status === 200) {
-                setIsModalOpen(true);
-            }
-        } catch (error) {
-            const errorMessage = error.response?.data?.message || 'An error occurred while updating.';
-            setErrors(errorMessage);
-        }
+        mutation.mutate(formData);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
+        mutation.reset();
     };
 
-    if (loading) {
+    if (isLoading) {
         return <div className="text-center text-white">Loading...</div>;
     }
+
+    const displayError = mutation.error?.response?.data?.message || mutation.error?.message || (isError ? queryError.message : '');
 
     return (
         <>
@@ -80,7 +83,7 @@ const CurrencyManagement = () => {
                                 type="number"
                                 name="coinPrice"
                                 id="coinPrice"
-                                value={formData.coinPrice}
+                                value={formData.coinPrice || ''}
                                 onChange={handleChange}
                                 className="w-full rounded-md border border-gray-600 bg-[#101324] px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
                             />
@@ -109,13 +112,14 @@ const CurrencyManagement = () => {
                             </div>
                         </div>
 
-                        {errors && <p className="text-red-500 text-center">{errors}</p>}
+                        {displayError && <p className="text-red-500 text-center">{displayError}</p>}
 
                         <button
                             type="submit"
-                            className="w-full text-white rounded-md bg-purple-600 hover:bg-purple-700 py-2.5 font-medium"
+                            disabled={mutation.isPending}
+                            className="w-full text-white rounded-md bg-purple-600 hover:bg-purple-700 py-2.5 font-medium disabled:bg-gray-500"
                         >
-                            Save Changes
+                            {mutation.isPending ? 'Saving...' : 'Save Changes'}
                         </button>
                     </form>
                 </div>

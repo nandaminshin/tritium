@@ -169,6 +169,10 @@ const SuperAdminController = {
                 additionalPay
             });
 
+            // Emit the event to all connected clients
+            const { io } = req;
+            io.emit('priceUpdated');
+
             res.status(200).json({
                 success: true,
                 data: updatedPaymentInfo,
