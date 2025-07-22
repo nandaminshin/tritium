@@ -63,7 +63,7 @@ function App() {
                 <ChatHead />
                 {hasPending && <PendingRequest />}
             </main>
-            <Footer />
+            {location.pathname !== '/courses' && <Footer />}
         </div>
     );
 }

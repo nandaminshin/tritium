@@ -78,7 +78,7 @@ const Nav = () => {
                             <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                                 {/* Logo */}
                                 <div className="hidden sm:flex shrink-0 items-center">
-                                    <img src="images/tritiumlogo.png" width={40} height={40} alt="" />
+                                    <img src="/images/tritiumlogo.png" width={40} height={40} alt="" />
                                 </div>
                                 {/* Desktop nav links */}
                                 <div className="hidden sm:ml-6 sm:block">
@@ -106,9 +106,17 @@ const Nav = () => {
                                     <Menu as="div" className="relative ml-3">
                                         <MenuButton className="flex rounded-full bg-[#1f2937] text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                                             <span className="sr-only">Open user menu</span>
-                                            <div className="h-8 w-8 rounded-full bg-[#6d5dfc] flex items-center justify-center text-white font-medium">
-                                                {user.name.charAt(0).toUpperCase()}
-                                            </div>
+                                            {user.profile_image ? (
+                                                <img
+                                                    className="h-8 w-8 rounded-full object-cover"
+                                                    src={`${import.meta.env.VITE_BACKEND_URL}/users/${user.profile_image}`}
+                                                    alt={user.name}
+                                                />
+                                            ) : (
+                                                <div className="h-8 w-8 rounded-full bg-[#6d5dfc] flex items-center justify-center text-white font-medium">
+                                                    {user.name.charAt(0).toUpperCase()}
+                                                </div>
+                                            )}
                                         </MenuButton>
                                         <MenuItems className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-[#1f2937] py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                                             <MenuItem>
@@ -121,19 +129,6 @@ const Nav = () => {
                                                         )}
                                                     >
                                                         Your Profile
-                                                    </Link>
-                                                )}
-                                            </MenuItem>
-                                            <MenuItem>
-                                                {({ active }) => (
-                                                    <Link
-                                                        to="/settings"
-                                                        className={classNames(
-                                                            active ? 'bg-[#2c3446]' : '',
-                                                            'block px-4 py-2 text-sm text-gray-300'
-                                                        )}
-                                                    >
-                                                        Settings
                                                     </Link>
                                                 )}
                                             </MenuItem>

@@ -80,12 +80,12 @@ const AdminSidebar = () => {
                                 }
                                 >Create New Course</NavLink>
                             </li>
-                            <li>
+                            {/* <li>
                                 <Link to="#" className="block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800">Course</Link>
                             </li>
                             <li>
                                 <Link to="#" className="block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800">Course</Link>
-                            </li>
+                            </li> */}
                         </ul>
                     )}
                 </li>
@@ -108,7 +108,7 @@ const AdminSidebar = () => {
                 >
                     <Home size={20} /> User Management
                 </NavLink>
-                <li>
+                {/* <li>
                     <Link to="#" className="flex items-center gap-2 px-3 py-4 rounded hover:bg-gray-800 hover:text-purple-400">
                         <Home size={20} /> Dashboard
                     </Link>
@@ -117,7 +117,7 @@ const AdminSidebar = () => {
                     <Link to="#" className="flex items-center gap-2 px-3 py-4 rounded hover:bg-gray-800 hover:text-purple-400">
                         <Home size={20} /> Dashboard
                     </Link>
-                </li>
+                </li> */}
                 {/* Other menu items... */}
 
                 

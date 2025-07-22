@@ -2,10 +2,13 @@ import PurchaseCoin from "../pages/user/PurchaseCoin.jsx";
 import { createBrowserRouter, RouterProvider, Navigate, Outlet } from "react-router-dom";
 import Home from '../pages/user/Home.jsx';
 import Courses from '../pages/user/Courses.jsx';
+import CourseDetail from '../pages/user/CourseDetail.jsx';
+import LectureVideo from '../pages/user/LectureVideo.jsx';
 import Blogs from '../pages/user/Blogs.jsx';
 import About from '../pages/user/About.jsx';
 import Register from '../pages/user/Register.jsx';
 import LearningPath from '../pages/user/LearningPath.jsx';
+import UserProfile from '../pages/user/Profile.jsx';
 import App from '../App.jsx';
 import Login from '../pages/user/Login.jsx';
 import AdminLayout from '../AdminLayout.jsx';
@@ -87,6 +90,14 @@ const index = () => {
                     element: <Home />
                 },
                 {
+                    path: '/course/:id',
+                    element: <ProtectedRoute><CourseDetail /></ProtectedRoute>
+                },
+                {
+                    path: '/courses/:courseId/lectures/:lectureId',
+                    element: <ProtectedRoute><LectureVideo /></ProtectedRoute>
+                },
+                {
                     path: '/courses',
                     element: <ProtectedRoute><Courses /></ProtectedRoute>
                 },
@@ -113,6 +124,10 @@ const index = () => {
                 {
                     path: '/purchase-coin',
                     element: <ProtectedRoute><PurchaseCoin /></ProtectedRoute>
+                },
+                {
+                    path: '/profile',
+                    element: <ProtectedRoute><UserProfile /></ProtectedRoute>
                 }
             ]
         },

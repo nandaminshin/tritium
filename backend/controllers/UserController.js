@@ -5,8 +5,41 @@ const createJWT = require('../Helpers/createJWT');
 const { getPaymentInfo } = require('./SuperAdminController');
 const PaymentInfo = require('../models/PaymentInfo');
 const PurchaseCoin = require('../models/PurchaseCoin');
+const Student = require('../models/Student');
+const fs = require('fs');
+const path = require('path');
 
 const UserController = {
+    // Get student data including coin balance and enrolled courses
+    getStudentData: async (req, res) => {
+        try {
+            const userId = req.user.id;
+            let student = await Student.findOne({ userId }).populate('courses');
+
+            if (!student) {
+                // Create new student record if it doesn't exist
+                student = new Student({ userId, coinAmount: 0, courses: [] });
+                await student.save();
+            }
+
+            return res.status(200).json({
+                success: true,
+                data: {
+                    _id: student._id,
+                    userId: student.userId,
+                    coinAmount: student.coinAmount,
+                    courses: student.courses,
+                    createdAt: student.createdAt,
+                    updatedAt: student.updatedAt
+                }
+            });
+        } catch (error) {
+            return res.status(400).json({
+                success: false,
+                error: error.message
+            });
+        }
+    },
     login: async (req, res) => {
         try {
             let { email, password } = req.body;
@@ -195,7 +228,84 @@ const UserController = {
                 error: error.message,
             });
         }
+    },
+
+    updateProfile: async (req, res) => {
+        const userId = req.user.id;
+        const { name, email } = req.body;
+        let oldImagePath = null;
+
+        try {
+            let user = await User.findById(userId);
+            if (!user) {
+                if (req.file) {
+                    // If user not found, delete uploaded file
+                    fs.unlinkSync(req.file.path);
+                }
+                return res.status(404).json({ error: 'User not found' });
+            }
+
+            // Store old image path if it exists
+            if (req.file && user.profile_image) {
+                oldImagePath = path.join(__dirname, '../public/users', user.profile_image);
+            }
+
+            user.name = name || user.name;
+            user.email = email || user.email;
+
+            if (req.file) {
+                user.profile_image = req.file.filename;
+            }
+
+            await user.save();
+
+            // If update is successful, delete the old image
+            if (oldImagePath && fs.existsSync(oldImagePath)) {
+                fs.unlinkSync(oldImagePath);
+            }
+
+            const token = createJWT(user);
+            res.cookie('jwt', token, { httpOnly: true, maxAge: 3 * 24 * 60 * 60 * 1000 });
+            return res.status(200).json({ success: true, data: { user } });
+
+        } catch (error) {
+            // If any error occurs, delete the newly uploaded file
+            if (req.file) {
+                fs.unlinkSync(req.file.path);
+            }
+            return res.status(400).json({ error: error.message });
+        }
+    },
+
+    deleteProfile: async (req, res) => {
+        try {
+            const userId = req.user.id;
+            const user = await User.findById(userId);
+
+            if (!user) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+
+            // Delete profile image if it exists
+            if (user.profile_image) {
+                const imagePath = path.join(__dirname, '../public/users', user.profile_image);
+                if (fs.existsSync(imagePath)) {
+                    fs.unlinkSync(imagePath);
+                }
+            }
+
+            // Also delete the associated student record
+            await Student.findOneAndDelete({ userId });
+
+            await user.deleteOne();
+
+            res.cookie('jwt', '', { maxAge: 1 });
+            return res.status(200).json({ success: true, message: 'User deleted successfully' });
+        } catch (error) {
+            return res.status(400).json({ error: error.message });
+        }
     }
 }
+
 
 module.exports = UserController;

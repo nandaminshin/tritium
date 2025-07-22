@@ -64,7 +64,7 @@ const SuperAdminSidebar = () => {
                     {pagesOpen && (
                         <ul className="ml-4 pl-4 border-l border-gray-700 mt-1 mb-2 space-y-2">
                             <li>
-                                <NavLink to="manage-admins"
+                                <NavLink to=""
                                 className={({ isActive }) =>
                                     `block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
                                     }`
@@ -72,7 +72,7 @@ const SuperAdminSidebar = () => {
                                 >Manage All Admins</NavLink>
                             </li>
                             <li>
-                                <NavLink to="create-admin" 
+                                <NavLink to="" 
                                 className={({ isActive }) =>
                                     `block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
                                     }`
@@ -84,7 +84,7 @@ const SuperAdminSidebar = () => {
                 </li>
                 
                 <NavLink
-                    to="user-management"
+                    to=""
                     className={({ isActive }) =>
                         `flex items-center gap-2 px-3 py-4 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
                         }`
