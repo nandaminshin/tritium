@@ -17,9 +17,9 @@ const AdminSidebar = () => {
         setPagesOpen(!pagesOpen);
     }
 
-    const isCourseActive = location.pathname.startsWith('/admin/manage-courses') || 
-                           location.pathname.startsWith('/admin/create-course') || 
-                           location.pathname.startsWith('/admin/courses');
+    const isCourseActive = location.pathname.startsWith('/admin/manage-courses') ||
+        location.pathname.startsWith('/admin/create-course') ||
+        location.pathname.startsWith('/admin/courses');
 
     return (
         <aside className="w-64 h-screen bg-gray-900 text-white px-4 py-6 space-y-6 flex flex-col overflow-y-auto 
@@ -66,18 +66,18 @@ const AdminSidebar = () => {
                         <ul className="ml-4 pl-4 border-l border-gray-700 mt-1 mb-2 space-y-2">
                             <li>
                                 <NavLink to="manage-courses"
-                                className={({ isActive }) =>
-                                    `block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive || location.pathname.startsWith('/admin/courses') ? 'bg-gray-800 text-purple-400 font-medium' : ''
-                                    }`
-                                }
+                                    className={({ isActive }) =>
+                                        `block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive || location.pathname.startsWith('/admin/courses') ? 'bg-gray-800 text-purple-400 font-medium' : ''
+                                        }`
+                                    }
                                 >Manage All Courses</NavLink>
                             </li>
                             <li>
-                                <NavLink to="create-course" 
-                                className={({ isActive }) =>
-                                    `block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
-                                    }`
-                                }
+                                <NavLink to="create-course"
+                                    className={({ isActive }) =>
+                                        `block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
+                                        }`
+                                    }
                                 >Create New Course</NavLink>
                             </li>
                             {/* <li>
@@ -89,7 +89,7 @@ const AdminSidebar = () => {
                         </ul>
                     )}
                 </li>
-                
+
                 {/* <NavLink
                     to=""
                     className={({ isActive }) =>
@@ -120,19 +120,19 @@ const AdminSidebar = () => {
                 </li> */}
                 {/* Other menu items... */}
 
-                
 
-                <li>
+
+                {/* <li>
                     <Link to="#" className="flex items-center gap-2 px-3 py-4 rounded hover:bg-gray-800 hover:text-purple-400">
                         <Home size={20} /> Dashboard
                     </Link>
-                </li>
+                </li> */}
             </ul>
 
             {/* Create Account Button */}
-            <button className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg">
+            {/* <button className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg">
                 Create account
-            </button>
+            </button> */}
         </aside>
     );
 }

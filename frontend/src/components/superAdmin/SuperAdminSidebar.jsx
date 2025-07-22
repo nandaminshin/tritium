@@ -17,8 +17,8 @@ const SuperAdminSidebar = () => {
         setPagesOpen(!pagesOpen);
     }
 
-    const isAdminActive = location.pathname.startsWith('/super-admin/manage-admins') || 
-                           location.pathname.startsWith('/super-admin/create-admin');
+    const isAdminActive = location.pathname.startsWith('/super-admin/manage-admins') ||
+        location.pathname.startsWith('/super-admin/create-admin');
 
     return (
         <aside className="w-64 h-screen bg-gray-900 text-white px-4 py-6 space-y-6 flex flex-col overflow-y-auto 
@@ -39,8 +39,8 @@ const SuperAdminSidebar = () => {
             <ul className="space-y-2 flex-1">
                 <li>
                     <NavLink
-                        to=""
-                        end  // This ensures it only matches exactly "/"
+                        to="/super-admin"
+                        end
                         className={({ isActive }) =>
                             `flex items-center gap-2 px-3 py-4 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
                             }`
@@ -50,7 +50,7 @@ const SuperAdminSidebar = () => {
                     </NavLink>
                 </li>
                 {/* Pages dropdown */}
-                <li className="relative">
+                {/* <li className="relative">
                     <button
                         onClick={adminDropdownClick}
                         className={`w-full flex items-center justify-between px-3 py-4 rounded hover:bg-gray-800 ${isAdminActive ? 'bg-gray-800 text-purple-400' : ''}`}
@@ -64,7 +64,7 @@ const SuperAdminSidebar = () => {
                     {pagesOpen && (
                         <ul className="ml-4 pl-4 border-l border-gray-700 mt-1 mb-2 space-y-2">
                             <li>
-                                <NavLink to=""
+                                <NavLink to="manage-admins"
                                 className={({ isActive }) =>
                                     `block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
                                     }`
@@ -72,7 +72,7 @@ const SuperAdminSidebar = () => {
                                 >Manage All Admins</NavLink>
                             </li>
                             <li>
-                                <NavLink to="" 
+                                <NavLink to="create-admin" 
                                 className={({ isActive }) =>
                                     `block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
                                     }`
@@ -81,17 +81,17 @@ const SuperAdminSidebar = () => {
                             </li>
                         </ul>
                     )}
-                </li>
-                
-                <NavLink
-                    to=""
+                </li> */}
+
+                {/* <NavLink
+                    to="user-management"
                     className={({ isActive }) =>
                         `flex items-center gap-2 px-3 py-4 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
                         }`
                     }
                 >
                     <Users size={20} /> User Management
-                </NavLink>
+                </NavLink> */}
                 <NavLink
                     to="currency-management"
                     className={({ isActive }) =>
@@ -113,9 +113,9 @@ const SuperAdminSidebar = () => {
             </ul>
 
             {/* Create Account Button */}
-            <button className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg">
+            {/* <button className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg">
                 Create account
-            </button>
+            </button> */}
         </aside>
     );
 }
