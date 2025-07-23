@@ -4,10 +4,23 @@ import CategoryGrid from '../../components/user/CategoryGrid';
 import { Link } from 'react-router-dom';
 import { useFeaturedCourses } from '../../helpers/useCourseQueries';
 import Axios from '../../helpers/Axios';
+import io from 'socket.io-client';
 
 const Home = () => {
     const { data: featuredCourses, isLoading, isError } = useFeaturedCourses();
     const [enrollments, setEnrollments] = useState({});
+    const [coinPrice, setCoinPrice] = useState(null);
+
+    const fetchCoinPrice = async () => {
+        try {
+            const res = await Axios.get('/api/user/get-payment-info');
+            if (res.data.success) {
+                setCoinPrice(res.data.data.coinPrice);
+            }
+        } catch (error) {
+            console.error('Failed to fetch coin price:', error);
+        }
+    };
 
     useEffect(() => {
         const fetchEnrollments = async () => {
@@ -37,6 +50,16 @@ const Home = () => {
         };
 
         fetchEnrollments();
+        fetchCoinPrice();
+
+        const socket = io(import.meta.env.VITE_BACKEND_URL);
+        socket.on('priceUpdated', () => {
+            fetchCoinPrice();
+        });
+
+        return () => {
+            socket.disconnect();
+        };
     }, []);
 
     const instructorImages = [
@@ -251,7 +274,7 @@ const Home = () => {
                         <div className="flex gap-2 items-center mb-4">
                             <div className="text-4xl font-extrabold text-white mb-2">1 </div>
                             <img src="/images/tritiumCoin.png" alt="coin" className="mb-2 w-12 h-12 shadow-cyan-500/50 animate-spin-slow" />
-                            <div className="text-4xl font-extrabold text-white mb-2"> = 10000 MMK</div>
+                            <div className="text-4xl font-extrabold text-white mb-2"> = {coinPrice ? `${coinPrice} MMK` : 'Loading...'}</div>
                         </div>
                         <div className="text-slate-300 text-center mb-8 max-w-md">Unlock all premium features, purchase Tritium Coins and enjoy the full experience of our platform. One-time purchase, no recurring fees.</div>
                         <Link to="/purchase-coin" className="w-full max-w-xs py-3 bg-slate-800 text-white font-bold rounded-lg shadow-md hover:bg-slate-700 transform hover:-translate-y-1 transition-all duration-300 text-lg cursor-pointer text-center">

@@ -112,7 +112,7 @@ const PurchaseCoin = () => {
 
     return (
         <>
-            <div className="min-h-screen flex items-center justify-center pt-24 pl-4 pr-4 pb-4 -mt-20">
+            <div className="min-h-screen flex items-center justify-center pt-32 pl-4 pr-4 pb-24 -mt-20">
                 <div className="bg-[#181f2a] border border-slate-700 rounded-2xl shadow-2xl w-full max-w-4xl mx-auto p-8 grid grid-cols-1 md:grid-cols-2 gap-12">
                     {/* Left Column: Purchase Form */}
                     <div className="flex flex-col items-center">

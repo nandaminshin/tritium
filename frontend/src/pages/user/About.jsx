@@ -18,7 +18,7 @@ const About = () => {
     ];
 
     return (
-        <div className="bg-gradient-to-br from-[#03050a] to-[#000721] text-white" style={{ marginTop: '-90px' }}>
+        <div className="bg-gradient-to-br from-[#03050a] to-[#000721] text-white" style={{ marginTop: '-85px' }}>
             {/* Hero Section */}
             <section className="relative text-white overflow-hidden">
                 <div className="absolute inset-0 z-0">

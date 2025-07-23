@@ -272,6 +272,7 @@ const UserCourseController = {
                         name: 1,
                         level: 1,
                         price: 1,
+                        image: 1,
                         createdAt: 1,
                         lectureCount: { $size: '$lectures' },
                         category: { $arrayElemAt: ['$category', 0] },
