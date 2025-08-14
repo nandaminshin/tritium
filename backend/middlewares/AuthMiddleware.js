@@ -28,3 +28,4 @@ const requireRole = (role) => {
 };
 
 module.exports = { requireAuth, requireRole };
+
