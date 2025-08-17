@@ -86,4 +86,12 @@ UserSchema.statics.updateUser = async function (id, updatedData) {
     return user;
 }
 
+UserSchema.statics.getAllAdmins = async function () {
+    const admins = await this.find({ role: 'admin' });
+    if (!admins || admins.length === 0) {
+        throw new Error('No admins found');
+    }
+    return admins;
+}
+
 module.exports = mongoose.model('User', UserSchema);

@@ -53,6 +53,7 @@ router.put('/update-payment-info', [
 router.get('/purchase-requests', SuperAdminController.getPurchaseRequests);
 router.put('/approve-purchase/:purchaseId', SuperAdminController.approvePurchase);
 router.delete('/purchase-requests/:purchaseId', SuperAdminController.deletePurchaseRequest);
+router.get('/get-all-admins', SuperAdminController.getAllAdmins);
 
 module.exports = router;
 

@@ -275,6 +275,23 @@ const SuperAdminController = {
                 error: error.message
             });
         }
+    },
+
+    getAllAdmins: async (req, res) => {
+        try {
+            const admins = await User.getAllAdmins();
+            return res.status(200).json({
+                success: true,
+                data: admins,
+                message: 'Admins retrieved successfully'
+            });
+        } catch (error) {
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to retrieve admins',
+                error: error.message
+            });
+        }
     }
 };
 

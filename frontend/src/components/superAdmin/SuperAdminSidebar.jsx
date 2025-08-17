@@ -49,41 +49,16 @@ const SuperAdminSidebar = () => {
                         <Home size={20} /> Dashboard
                     </NavLink>
                 </li>
-                {/* Pages dropdown */}
-                {/* <li className="relative">
-                    <button
-                        onClick={adminDropdownClick}
-                        className={`w-full flex items-center justify-between px-3 py-4 rounded hover:bg-gray-800 ${isAdminActive ? 'bg-gray-800 text-purple-400' : ''}`}
-                    >
-                        <span className="flex items-center gap-2">
-                            <Users size={20} /> Admin Management
-                        </span>
-                        <ChevronDownIcon className={`w-5 h-5 transition-transform ${pagesOpen ? 'rotate-180' : ''}`} />
-                    </button>
-
-                    {pagesOpen && (
-                        <ul className="ml-4 pl-4 border-l border-gray-700 mt-1 mb-2 space-y-2">
-                            <li>
-                                <NavLink to="manage-admins"
-                                className={({ isActive }) =>
-                                    `block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
-                                    }`
-                                }
-                                >Manage All Admins</NavLink>
-                            </li>
-                            <li>
-                                <NavLink to="create-admin" 
-                                className={({ isActive }) =>
-                                    `block px-3 py-2 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
-                                    }`
-                                }
-                                >Create New Admin</NavLink>
-                            </li>
-                        </ul>
-                    )}
-                </li> */}
-
-                {/* <NavLink
+                <NavLink
+                    to="admin-management"
+                    className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-4 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
+                        }`
+                    }
+                >
+                    <Users size={20} /> Manage All Admins
+                </NavLink>
+                <NavLink
                     to="user-management"
                     className={({ isActive }) =>
                         `flex items-center gap-2 px-3 py-4 rounded hover:text-purple-400 hover:bg-gray-800 ${isActive ? 'bg-gray-800 text-purple-400 font-medium' : ''
@@ -91,7 +66,7 @@ const SuperAdminSidebar = () => {
                     }
                 >
                     <Users size={20} /> User Management
-                </NavLink> */}
+                </NavLink>
                 <NavLink
                     to="currency-management"
                     className={({ isActive }) =>

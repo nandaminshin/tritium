@@ -30,6 +30,7 @@ import SuperAdminDashboard from '../pages/superAdmin/SuperAdminDashboard.jsx';
 import SuperAdminProfile from '../pages/superAdmin/Profile.jsx';
 import CurrencyManagement from "../pages/superAdmin/CurrencyManagement.jsx";
 import PurchaseRequests from "../pages/superAdmin/PurchaseRequests.jsx";
+import AdminManagement from "../pages/superAdmin/AdminManagement.jsx";
 
 const ProtectedRoute = ({ children, requireAuth = true, allowedRoles }) => {
     const { user, loading } = useContext(AuthContext);
@@ -201,6 +202,10 @@ const index = () => {
                 {
                     path: 'purchase-requests',
                     element: <PurchaseRequests />
+                },
+                {
+                    path: 'admin-management',
+                    element: <AdminManagement />
                 }
             ]
         }
