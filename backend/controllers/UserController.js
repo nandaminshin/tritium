@@ -61,8 +61,9 @@ const UserController = {
             let token = createJWT(user);
             res.cookie('jwt', token, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === "production", // true on Render
-                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", maxAge: 3 * 24 * 60 * 60 * 1000
+                secure: true,
+                sameSite: "none",
+                maxAge: 3 * 24 * 60 * 60 * 1000
             });
             return res.json({ user, token });
         } catch (error) {
