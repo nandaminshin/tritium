@@ -59,7 +59,11 @@ const UserController = {
             let { name, email, password } = req.body;
             let user = await User.register(name, email, password);
             let token = createJWT(user);
-            res.cookie('jwt', token, { httpOnly: true, maxAge: 3 * 24 * 60 * 60 * 1000 });
+            res.cookie('jwt', token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production", // true on Render
+                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", maxAge: 3 * 24 * 60 * 60 * 1000
+            });
             return res.json({ user, token });
         } catch (error) {
             return res.status(400).json({
