@@ -15,7 +15,8 @@ const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
     cors: {
         origin: process.env.FRONTEND_URL || "http://localhost:5173",
-        methods: ["GET", "POST"]
+        methods: ["GET", "POST"],
+        credentials: true
     }
 });
 
@@ -47,10 +48,10 @@ app.get('/', (req, res) => {
 });
 
 const mongoURL = process.env.MONGO_URL;
-
+const PORT = process.env.PORT || 3000;
 mongoose.connect(mongoURL).then(() => {
     console.log('Connected to db');
-    httpServer.listen(3000, () => {
+    httpServer.listen(PORT, () => {
         console.log("App is running on port 3000");
     })
 }).catch((err) => {
