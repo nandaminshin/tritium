@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-let maxAge = 3 * 24 * 60 * 60;
+let maxAge = 3 * 24 * 60 * 60 * 1000;;
 
 module.exports = function (user) {
     const payload = {
