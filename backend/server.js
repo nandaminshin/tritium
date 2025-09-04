@@ -41,7 +41,7 @@ app.use(express.static('public'));
 app.use(express.json());
 app.use(cors({
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    credentials: true
+    credentials: true,
 }));
 app.use(cookieParser());
 app.use('/api/user', UserRouter);

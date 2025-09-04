@@ -50,7 +50,7 @@ const UserController = {
                 httpOnly: true,
                 secure: true,
                 sameSite: "none",
-                maxAge: 3 * 24 * 60 * 60 * 1000
+                maxAge: 3 * 24 * 60 * 60 * 1000,
             });
             return res.json({ user, token });
         } catch (error) {
