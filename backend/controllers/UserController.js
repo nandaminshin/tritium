@@ -81,6 +81,7 @@ const UserController = {
 
     logout: (req, res) => {
         res.cookie('jwt', '', { maxAge: 1 });
+        console.log('User logged out, cookie cleared');
         return res.json({ message: "user logged out" });
     },
 

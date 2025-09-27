@@ -1,4 +1,5 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useContext } from 'react';
+import { AuthContext } from '../../contexts/AuthContext';
 import { List, User, Layers, Clock } from 'lucide-react';
 import CategoryGrid from '../../components/user/CategoryGrid';
 import { Link } from 'react-router-dom';
@@ -7,6 +8,7 @@ import Axios from '../../helpers/Axios';
 import io from 'socket.io-client';
 
 const Home = () => {
+    const { user } = useContext(AuthContext);
     const { data: featuredCourses, isLoading, isError } = useFeaturedCourses();
     const [enrollments, setEnrollments] = useState({});
     const [coinPrice, setCoinPrice] = useState(null);
@@ -49,7 +51,9 @@ const Home = () => {
             }
         };
 
-        fetchEnrollments();
+        if (user) {
+            fetchEnrollments();
+        }
         fetchCoinPrice();
 
         const socket = io(import.meta.env.VITE_BACKEND_URL);
@@ -60,7 +64,7 @@ const Home = () => {
         return () => {
             socket.disconnect();
         };
-    }, []);
+    }, [user]);
 
     const instructorImages = [
         { name: 'Mina', role: 'Instructor', img: '/images/mina1.jpg' },
